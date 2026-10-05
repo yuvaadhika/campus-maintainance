@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FixIt – Campus Maintenance Reporting & Resolution System</title>
+  <meta name="description" content="FixIt is a centralized campus maintenance reporting platform for students, faculty, and administration to report, track, prioritize, and resolve campus infrastructure issues in real-time.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons for modern, clean iconography -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Announcement / Live Status Bar -->
+  <aside class="top-announcement-bar" role="complementary" aria-label="System status notice">
+    <div class="announcement-content">
+      <span class="live-indicator"><span class="pulse-dot"></span> 24/7 Campus Facility Helpdesk</span>
+      <span class="announcement-text">Average issue resolution time across campus: <strong>4.2 Hours</strong></span>
+      <span class="announcement-contact"><i class="ph ph-phone"></i> Emergency Facility Helpline: <strong>Ext. 1800-CAMPUS-FIX</strong></span>
+    </div>
+  </aside>
+
+  <!-- Navigation Header -->
+  <header class="site-header" id="mainHeader">
+    <div class="header-container">
+      <div class="brand-section">
+        <a href="#dashboard" class="brand-logo" aria-label="FixIt Campus Home">
+          <div class="brand-icon">
+            <i class="ph-fill ph-wrench"></i>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">Fix<span class="brand-accent">It</span></span>
+            <span class="brand-tagline">Campus Facility Care</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="main-nav" aria-label="Main Navigation">
+        <button class="nav-link active" data-target="dashboardView" id="navDashboard">
+          <i class="ph ph-squares-four"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-link" data-target="complaintsView" id="navComplaints">
+          <i class="ph ph-list-bullets"></i>
+          <span>All Complaints</span>
+          <span class="badge-count" id="totalComplaintsPill">0</span>
+        </button>
+        <button class="nav-link" data-target="kanbanView" id="navKanban">
+          <i class="ph ph-kanban"></i>
+          <span>Workflow Board</span>
+        </button>
+        <button class="nav-link" data-target="trackerView" id="navTracker">
+          <i class="ph ph-magnifying-glass"></i>
+          <span>Track Ticket</span>
+        </button>
+        <button class="nav-link" data-target="analyticsView" id="navAnalytics">
+          <i class="ph ph-chart-donut"></i>
+          <span>Analytics</span>
+        </button>
+      </nav>
+
+      <!-- User Role Selector & Action Buttons -->
+      <div class="header-actions">
+        <!-- Role Simulation Switcher -->
+        <div class="role-selector-wrapper" title="Switch between Student & Admin view to test role features">
+          <label for="roleSwitch" class="role-label"><i class="ph ph-user-circle"></i> Role:</label>
+          <select id="roleSwitch" class="role-select" aria-label="Switch User Mode">
+            <option value="student">Student / Staff (Reporter)</option>
+            <option value="admin" selected>Facility Admin (Full Access)</option>
+            <option value="technician">Technician / Maintenance</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" id="openReportModalBtn">
+          <i class="ph ph-plus-circle"></i>
+          <span>Report Issue</span>
+        </button>
+
+        <!-- Mobile Navigation Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+          <i class="ph ph-list"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Navigation -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+      <div class="mobile-nav-links">
+        <button class="mobile-nav-link active" data-target="dashboardView">
+          <i class="ph ph-squares-four"></i> Dashboard
+        </button>
+        <button class="mobile-nav-link" data-target="complaintsView">
+          <i class="ph ph-list-bullets"></i> All Complaints (<span id="mobileCount">0</span>)
+        </button>
+        <button class="mobile-nav-link" data-target="kanbanView">
+          <i class="ph ph-kanban"></i> Workflow Board
+        </button>
+        <button class="mobile-nav-link" data-target="trackerView">
+          <i class="ph ph-magnifying-glass"></i> Track Ticket
+        </button>
+        <button class="mobile-nav-link" data-target="analyticsView">
+          <i class="ph ph-chart-donut"></i> Analytics & Stats
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-container">
+
+    <!-- View 1: Main Dashboard -->
+    <section id="dashboardView" class="app-view active">
+      
+      <!-- Welcome & Action Banner -->
+      <div class="dashboard-hero">
+        <div class="hero-text-content">
+          <span class="hero-chip"><i class="ph ph-buildings"></i> Centralized Campus Resolution Portal</span>
+          <h1 class="hero-title">Report, Track & Resolve Campus Infrastructure Issues</h1>
+          <p class="hero-subtitle">Encountered broken benches, water leakages, electrical faults, or AV equipment failures? Report instantly with room details and monitor repair progress in real time.</p>
+          
+          <div class="hero-quick-actions">
+            <button class="btn btn-primary btn-lg" id="heroReportBtn">
+              <i class="ph-bold ph-plus"></i> Submit New Complaint
+            </button>
+            <button class="btn btn-secondary btn-lg" id="heroTrackBtn">
+              <i class="ph-bold ph-crosshair"></i> Track Existing Ticket
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-status-widget">
+          <div class="facility-status-card">
+            <div class="card-status-header">
+              <span class="status-badge live"><i class="ph ph-check-circle"></i> Maintenance Crew On Duty</span>
+              <span class="time-stamp" id="currentTimeStamp">Live Campus Feed</span>
+            </div>
+            <div class="status-metrics-row">
+              <div class="metric-mini">
+                <span class="metric-mini-value" id="heroResolvedRate">92%</span>
+                <span class="metric-mini-label">Resolution Rate</span>
+              </div>
+              <div class="metric-mini">
+                <span class="metric-mini-value" id="heroAvgHours">3.8h</span>
+                <span class="metric-mini-label">Avg. Response Time</span>
+              </div>
+              <div class="metric-mini">
+                <span class="metric-mini-value" id="heroActiveWorkers">14</span>
+                <span class="metric-mini-label">Active Technicians</span>
+              </div>
+            </div>
+            <div class="recent-highlight" id="heroLatestTicker">
+              <i class="ph ph-bell-ringing"></i>
+              <span id="heroLatestText">Latest: Projector repair completed at Audi-2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick KPI Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card" data-filter-status="all">
+          <div class="stat-icon-wrapper icon-blue">
+            <i class="ph-fill ph-folders"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Total Reported</span>
+            <h2 class="stat-value" id="statTotal">0</h2>
+            <span class="stat-meta">Lifetime logged issues</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-filter-status="Pending">
+          <div class="stat-icon-wrapper icon-amber">
+            <i class="ph-fill ph-clock-countdown"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Pending Review</span>
+            <h2 class="stat-value" id="statPending">0</h2>
+            <span class="stat-meta">Awaiting technician assignment</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-filter-status="In Progress">
+          <div class="stat-icon-wrapper icon-cyan">
+            <i class="ph-fill ph-wrench"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">In Progress</span>
+            <h2 class="stat-value" id="statInProgress">0</h2>
+            <span class="stat-meta">Work currently underway</span>
+          </div>
+        </div>
+
+        <div class="stat-card" data-filter-status="Resolved">
+          <div class="stat-icon-wrapper icon-green">
+            <i class="ph-fill ph-check-circle"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Resolved Issues</span>
+            <h2 class="stat-value" id="statResolved">0</h2>
+            <span class="stat-meta">Successfully fixed & verified</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Breakdown Quick View & Urgent Alerts -->
+      <div class="dashboard-split-section">
+        <!-- Category Summary -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title"><i class="ph ph-squares-four"></i> Issue Category Breakdown</h3>
+              <p class="panel-subtitle">Distribution of complaints across campus systems</p>
+            </div>
+          </div>
+          <div class="category-bars-list" id="categoryBarsList">
+            <!-- Dynamic Category Rows Generated by JS -->
+          </div>
+        </div>
+
+        <!-- Priority & Urgent Attention -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title"><i class="ph ph-warning-octagon"></i> Priority Distribution & Urgent Fixes</h3>
+              <p class="panel-subtitle">Immediate safety and classroom blockers</p>
+            </div>
+            <span class="badge badge-danger" id="criticalCountBadge">0 Critical</span>
+          </div>
+          <div class="priority-breakdown-wrapper">
+            <div class="priority-meter-row">
+              <div class="priority-meter-item critical">
+                <span class="label">Critical / Urgent</span>
+                <span class="count" id="countCritical">0</span>
+                <div class="meter-bar"><div class="fill" id="fillCritical"></div></div>
+              </div>
+              <div class="priority-meter-item high">
+                <span class="label">High Priority</span>
+                <span class="count" id="countHigh">0</span>
+                <div class="meter-bar"><div class="fill" id="fillHigh"></div></div>
+              </div>
+              <div class="priority-meter-item medium">
+                <span class="label">Medium</span>
+                <span class="count" id="countMedium">0</span>
+                <div class="meter-bar"><div class="fill" id="fillMedium"></div></div>
+              </div>
+              <div class="priority-meter-item low">
+                <span class="label">Low / Routine</span>
+                <span class="count" id="countLow">0</span>
+                <div class="meter-bar"><div class="fill" id="fillLow"></div></div>
+              </div>
+            </div>
+            
+            <div class="urgent-tickets-box">
+              <h4 class="subheading"><i class="ph ph-lightning"></i> Active High-Priority Escalations</h4>
+              <div class="urgent-list" id="urgentTicketsList">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Complaints Stream with Quick Action -->
+      <div class="panel-card mt-lg">
+        <div class="panel-header flex-wrap">
+          <div>
+            <h3 class="panel-title"><i class="ph ph-clock-counter-clockwise"></i> Recently Reported Issues</h3>
+            <p class="panel-subtitle">Real-time stream of campus maintenance reports</p>
+          </div>
+          <div class="panel-header-actions">
+            <button class="btn btn-secondary btn-sm" id="viewAllComplaintsBtn">
+              View All Complaints <i class="ph ph-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="complaints-grid-container" id="recentComplaintsGrid">
+          <!-- Cards injected via JS -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- View 2: All Complaints Explorer (Filter, Search, Manage) -->
+    <section id="complaintsView" class="app-view">
+      <div class="section-title-bar">
+        <div>
+          <h1 class="page-heading"><i class="ph ph-list-dashes"></i> Campus Maintenance Registry</h1>
+          <p class="page-subheading">Comprehensive repository of all reported infrastructure & maintenance tickets</p>
+        </div>
+        <div class="header-tools">
+          <button class="btn btn-secondary btn-sm" id="exportDataBtn" title="Export as CSV/JSON">
+            <i class="ph ph-download-simple"></i> Export CSV
+          </button>
+          <button class="btn btn-secondary btn-sm" id="printReportBtn" title="Print friendly report">
+            <i class="ph ph-printer"></i> Print Summary
+          </button>
+          <button class="btn btn-primary btn-sm" id="openReportModalBtn2">
+            <i class="ph ph-plus"></i> New Complaint
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter & Search Toolbar -->
+      <div class="toolbar-panel">
+        <div class="search-box-wrapper">
+          <i class="ph ph-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by Ticket ID, Title, Room, Building, or Submitter...">
+          <button class="clear-search-btn" id="clearSearchBtn" aria-label="Clear Search">&times;</button>
+        </div>
+
+        <div class="filters-row">
+          <!-- Status Filter -->
+          <div class="filter-group">
+            <label for="statusFilter"><i class="ph ph-activity"></i> Status</label>
+            <select id="statusFilter" class="filter-select">
+              <option value="all">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <label for="categoryFilter"><i class="ph ph-tag"></i> Category</label>
+            <select id="categoryFilter" class="filter-select">
+              <option value="all">All Categories</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Plumbing">Plumbing / Water</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Classroom & AV">Classroom & AV</option>
+              <option value="HVAC / AC">HVAC / Cooling</option>
+              <option value="Civil & Infrastructure">Civil & Infrastructure</option>
+              <option value="Cleanliness & Sanitation">Cleanliness & Sanitation</option>
+            </select>
+          </div>
+
+          <!-- Priority Filter -->
+          <div class="filter-group">
+            <label for="priorityFilter"><i class="ph ph-flag"></i> Priority</label>
+            <select id="priorityFilter" class="filter-select">
+              <option value="all">All Priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+
+          <!-- Location/Building Filter -->
+          <div class="filter-group">
+            <label for="buildingFilter"><i class="ph ph-buildings"></i> Building</label>
+            <select id="buildingFilter" class="filter-select">
+              <option value="all">All Locations</option>
+              <option value="Main Academic Block">Main Academic Block</option>
+              <option value="Science & Lab Block">Science & Lab Block</option>
+              <option value="Central Library">Central Library</option>
+              <option value="Engineering Quad">Engineering Quad</option>
+              <option value="Hostel Block A">Hostel Block A</option>
+              <option value="Hostel Block B">Hostel Block B</option>
+              <option value="Auditorium & Sports Complex">Auditorium & Sports</option>
+              <option value="Cafeteria Building">Cafeteria Building</option>
+            </select>
+          </div>
+
+          <!-- Sort Filter -->
+          <div class="filter-group">
+            <label for="sortBy"><i class="ph ph-sort-ascending"></i> Sort By</label>
+            <select id="sortBy" class="filter-select">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="priority-desc">Priority: High to Low</option>
+              <option value="priority-asc">Priority: Low to High</option>
+            </select>
+          </div>
+
+          <!-- View Mode Toggle (Grid vs Table) -->
+          <div class="view-toggle-group">
+            <button class="view-toggle-btn active" id="viewModeGrid" title="Grid View">
+              <i class="ph ph-squares-four"></i>
+            </button>
+            <button class="view-toggle-btn" id="viewModeTable" title="Table View">
+              <i class="ph ph-table"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Tags & Results Counter -->
+        <div class="filter-status-bar">
+          <div class="results-counter">
+            Showing <strong id="filterMatchCount">0</strong> of <span id="filterTotalCount">0</span> complaints
+          </div>
+          <button class="btn-text-clear" id="resetFiltersBtn">
+            <i class="ph ph-arrow-counter-clockwise"></i> Reset Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Complaints Container (Grid View) -->
+      <div class="complaints-grid-container" id="mainComplaintsGrid">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Complaints Container (Table View) -->
+      <div class="complaints-table-container" id="mainComplaintsTableWrapper" style="display: none;">
+        <table class="data-table" id="complaintsTable">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Issue Title & Location</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Reported By</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="complaintsTableBody">
+            <!-- Rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State View -->
+      <div class="empty-state-card" id="emptyStateContainer" style="display: none;">
+        <div class="empty-icon"><i class="ph ph-magnifying-glass"></i></div>
+        <h3>No matching maintenance complaints found</h3>
+        <p>Try adjusting your search keyword or clearing the filters to view all logged records.</p>
+        <button class="btn btn-secondary btn-sm" id="emptyResetBtn">Clear All Filters</button>
+      </div>
+    </section>
+
+
+    <!-- View 3: Interactive Kanban Workflow Board -->
+    <section id="kanbanView" class="app-view">
+      <div class="section-title-bar">
+        <div>
+          <h1 class="page-heading"><i class="ph ph-kanban"></i> Maintenance Resolution Board</h1>
+          <p class="page-subheading">Track issues through progressive operational stages: Pending, In Progress, and Resolved</p>
+        </div>
+        <div class="role-tip">
+          <i class="ph ph-info"></i> Tip: Use the action buttons on cards or the Quick Action menu to advance tickets.
+        </div>
+      </div>
+
+      <div class="kanban-board-grid">
+        <!-- Column 1: Pending -->
+        <div class="kanban-column" data-status="Pending">
+          <div class="kanban-column-header header-pending">
+            <div class="col-title-wrap">
+              <span class="status-indicator-dot dot-amber"></span>
+              <h3>Pending Verification</h3>
+            </div>
+            <span class="col-count" id="kanbanPendingCount">0</span>
+          </div>
+          <div class="kanban-cards-dropzone" id="kanbanPendingZone">
+            <!-- Cards -->
+          </div>
+        </div>
+
+        <!-- Column 2: In Progress -->
+        <div class="kanban-column" data-status="In Progress">
+          <div class="kanban-column-header header-progress">
+            <div class="col-title-wrap">
+              <span class="status-indicator-dot dot-cyan"></span>
+              <h3>In Progress & Assigned</h3>
+            </div>
+            <span class="col-count" id="kanbanProgressCount">0</span>
+          </div>
+          <div class="kanban-cards-dropzone" id="kanbanProgressZone">
+            <!-- Cards -->
+          </div>
+        </div>
+
+        <!-- Column 3: Resolved -->
+        <div class="kanban-column" data-status="Resolved">
+          <div class="kanban-column-header header-resolved">
+            <div class="col-title-wrap">
+              <span class="status-indicator-dot dot-green"></span>
+              <h3>Resolved & Closed</h3>
+            </div>
+            <span class="col-count" id="kanbanResolvedCount">0</span>
+          </div>
+          <div class="kanban-cards-dropzone" id="kanbanResolvedZone">
+            <!-- Cards -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- View 4: Track Complaint by Ticket ID -->
+    <section id="trackerView" class="app-view">
+      <div class="tracker-hero-card">
+        <div class="tracker-icon-badge">
+          <i class="ph-fill ph-crosshair"></i>
+        </div>
+        <h1 class="tracker-title">Live Campus Ticket Tracker</h1>
+        <p class="tracker-desc">Enter your unique complaint reference ID (e.g. <code>FIX-2026-001</code>) to inspect real-time resolution timeline, assigned technicians, and status updates.</p>
+
+        <form id="trackerSearchForm" class="tracker-form">
+          <div class="tracker-input-group">
+            <i class="ph ph-barcode tracker-input-icon"></i>
+            <input type="text" id="trackerInput" class="tracker-input" placeholder="Enter Ticket ID (e.g. FIX-2026-001)" required>
+            <button type="submit" class="btn btn-primary btn-track">
+              <i class="ph-bold ph-magnifying-glass"></i> Track Progress
+            </button>
+          </div>
+          <div class="tracker-quick-examples">
+            <span>Quick sample test IDs:</span>
+            <button type="button" class="sample-id-btn" data-id="FIX-2026-001">FIX-2026-001 (Plumbing)</button>
+            <button type="button" class="sample-id-btn" data-id="FIX-2026-002">FIX-2026-002 (Electrical)</button>
+            <button type="button" class="sample-id-btn" data-id="FIX-2026-003">FIX-2026-003 (Furniture)</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tracker Result Container -->
+      <div id="trackerResultContainer" class="tracker-results-area" style="display: none;">
+        <!-- Injected by JS -->
+      </div>
+    </section>
+
+
+    <!-- View 5: Campus Resolution Analytics -->
+    <section id="analyticsView" class="app-view">
+      <div class="section-title-bar">
+        <div>
+          <h1 class="page-heading"><i class="ph ph-chart-line-up"></i> Campus Maintenance Statistics & Insights</h1>
+          <p class="page-subheading">Data metrics, department workload, and infrastructure resolution performance</p>
+        </div>
+      </div>
+
+      <!-- Analytical Key Metrics -->
+      <div class="analytics-metrics-grid">
+        <div class="analytics-metric-card">
+          <span class="label">Overall Resolution Rate</span>
+          <div class="value-row">
+            <h2 id="metricResRate">0%</h2>
+            <span class="trend-badge positive"><i class="ph ph-trend-up"></i> Efficient</span>
+          </div>
+          <p class="subtext">Ratio of resolved to total submitted issues</p>
+        </div>
+
+        <div class="analytics-metric-card">
+          <span class="label">Average Fix Duration</span>
+          <div class="value-row">
+            <h2 id="metricAvgDuration">3.8h</h2>
+            <span class="trend-badge neutral"><i class="ph ph-timer"></i> Target: < 6h</span>
+          </div>
+          <p class="subtext">From report submission to resolution</p>
+        </div>
+
+        <div class="analytics-metric-card">
+          <span class="label">Pending Action Queue</span>
+          <div class="value-row">
+            <h2 id="metricPendingBacklog">0</h2>
+            <span class="trend-badge warning" id="backlogBadge"><i class="ph ph-clock"></i> Active</span>
+          </div>
+          <p class="subtext">Tickets awaiting completion</p>
+        </div>
+
+        <div class="analytics-metric-card">
+          <span class="label">Primary Maintenance Area</span>
+          <div class="value-row">
+            <h2 id="metricTopBuilding" class="small-text">Science Block</h2>
+            <span class="trend-badge info"><i class="ph ph-map-pin"></i> High Activity</span>
+          </div>
+          <p class="subtext">Building with highest volume of requests</p>
+        </div>
+      </div>
+
+      <!-- Analytics Charts & Distribution Split -->
+      <div class="analytics-charts-grid">
+        <!-- Building Breakdown Chart -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title"><i class="ph ph-buildings"></i> Building & Facility Load</h3>
+              <p class="panel-subtitle">Total maintenance complaints by campus zone</p>
+            </div>
+          </div>
+          <div class="building-analytics-list" id="buildingAnalyticsList">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Category Performance Table -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title"><i class="ph ph-wrench"></i> Resolution Time by Category</h3>
+              <p class="panel-subtitle">Average handling speed and workload per trade</p>
+            </div>
+          </div>
+          <div class="category-analytics-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Logged</th>
+                  <th>Resolved</th>
+                  <th>Resolution %</th>
+                </tr>
+              </thead>
+              <tbody id="categoryStatsTableBody">
+                <!-- Injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="brand-icon small">
+            <i class="ph-fill ph-wrench"></i>
+          </div>
+          <span>Fix<span class="brand-accent">It</span> Campus System</span>
+        </div>
+        <p class="footer-text">Empowering students, faculty, and administrative staff to build a safer, well-maintained academic environment through transparent issue reporting.</p>
+      </div>
+
+      <div class="footer-links-group">
+        <h4>System Features</h4>
+        <ul>
+          <li><a href="#dashboard" class="footer-nav-link" data-target="dashboardView">Overview Dashboard</a></li>
+          <li><a href="#complaints" class="footer-nav-link" data-target="complaintsView">Maintenance Registry</a></li>
+          <li><a href="#kanban" class="footer-nav-link" data-target="kanbanView">Workflow Kanban</a></li>
+          <li><a href="#tracker" class="footer-nav-link" data-target="trackerView">Live Ticket Tracker</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-group">
+        <h4>Facility Support</h4>
+        <ul>
+          <li><i class="ph ph-phone"></i> Helpdesk: +1 (800) 555-CAMPUS</li>
+          <li><i class="ph ph-envelope"></i> helpdesk@campusfacilities.edu</li>
+          <li><i class="ph ph-clock"></i> Operations: 24/7 Facility Response</li>
+          <li><i class="ph ph-shield-check"></i> Campus Safety Certified</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 FixIt Campus Maintenance Reporting System. Designed for university campus infrastructure management.</p>
+      <div class="data-controls">
+        <button id="resetDemoDataBtn" class="btn-text-danger" title="Restore sample demo data">
+          <i class="ph ph-arrows-clockwise"></i> Reset Sample Data
+        </button>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- MODAL 1: Submit Complaint Modal -->
+  <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <i class="ph-fill ph-note-pencil"></i>
+        </div>
+        <div>
+          <h2 class="modal-title" id="reportModalTitle">Submit Campus Maintenance Complaint</h2>
+          <p class="modal-subtitle">Fill in the issue details. Our facility crew will be assigned promptly.</p>
+        </div>
+        <button class="modal-close-btn" id="closeReportModalBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="reportIssueForm" class="modal-form">
+        <div class="form-grid">
+
+          <!-- Issue Title -->
+          <div class="form-group full-width">
+            <label for="issueTitle" class="form-label required">Issue Title / Summary</label>
+            <input type="text" id="issueTitle" class="form-input" placeholder="e.g. Broken wooden chair in Room 204 or Water pipe leakage near chemistry lab" required maxlength="120">
+          </div>
+
+          <!-- Category Selection with Visual Cards -->
+          <div class="form-group full-width">
+            <label class="form-label required">Maintenance Category</label>
+            <div class="category-pill-selector" id="categoryPillSelector">
+              <label class="category-radio-card active">
+                <input type="radio" name="category" value="Electrical" checked>
+                <i class="ph-fill ph-lightning icon-electrical"></i>
+                <span>Electrical</span>
+              </label>
+
+              <label class="category-radio-card">
+                <input type="radio" name="category" value="Plumbing">
+                <i class="ph-fill ph-drop icon-plumbing"></i>
+                <span>Plumbing & Water</span>
+              </label>
+
+              <label class="category-radio-card">
+                <input type="radio" name="category" value="Furniture">
+                <i class="ph-fill ph-armchair icon-furniture"></i>
+                <span>Furniture</span>
+              </label>
+
+              <label class="category-radio-card">
+                <input type="radio" name="category" value="Classroom & AV">
+                <i class="ph-fill ph-projector-screen icon-av"></i>
+                <span>Classroom & AV</span>
+              </label>
+
+              <label class="category-radio-card">
+                <input type="radio" name="category" value="HVAC / AC">
+                <i class="ph-fill ph-fan icon-hvac"></i>
+                <span>HVAC / AC</span>
+              </label>
+
+              <label class="category-radio-card">
+                <input type="radio" name="category" value="Civil & Infrastructure">
+                <i class="ph-fill ph-wall icon-civil"></i>
+                <span>Civil & Infra</span>
+              </label>
+
+              <label class="category-radio-card">
+                <input type="radio" name="category" value="Cleanliness & Sanitation">
+                <i class="ph-fill ph-broom icon-clean"></i>
+                <span>Sanitation</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Location Details -->
+          <div class="form-group">
+            <label for="issueBuilding" class="form-label required">Campus Building / Block</label>
+            <select id="issueBuilding" class="form-select" required>
+              <option value="" disabled selected>Select Building...</option>
+              <option value="Main Academic Block">Main Academic Block</option>
+              <option value="Science & Lab Block">Science & Lab Block</option>
+              <option value="Central Library">Central Library</option>
+              <option value="Engineering Quad">Engineering Quad</option>
+              <option value="Hostel Block A">Hostel Block A (Boys)</option>
+              <option value="Hostel Block B">Hostel Block B (Girls)</option>
+              <option value="Auditorium & Sports Complex">Auditorium & Sports Complex</option>
+              <option value="Cafeteria Building">Cafeteria Building</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="issueFloor" class="form-label required">Floor Level</label>
+            <select id="issueFloor" class="form-select" required>
+              <option value="Ground Floor">Ground Floor</option>
+              <option value="1st Floor" selected>1st Floor</option>
+              <option value="2nd Floor">2nd Floor</option>
+              <option value="3rd Floor">3rd Floor</option>
+              <option value="4th Floor">4th Floor</option>
+              <option value="Basement / Parking">Basement / Parking</option>
+              <option value="Outdoor / Campus Ground">Outdoor Grounds</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="issueRoom" class="form-label required">Room / Area / Hall Number</label>
+            <input type="text" id="issueRoom" class="form-input" placeholder="e.g. Room 302, Physics Lab 1, Restroom 2B" required>
+          </div>
+
+          <!-- Priority Level -->
+          <div class="form-group">
+            <label for="issuePriority" class="form-label required">Priority Level</label>
+            <select id="issuePriority" class="form-select" required>
+              <option value="Low">Low – Routine maintenance (1-3 days)</option>
+              <option value="Medium" selected>Medium – Standard issue (within 24 hours)</option>
+              <option value="High">High – Affecting active classes / labs (4-8 hours)</option>
+              <option value="Critical">Critical – Immediate safety hazard / electrical risk</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group full-width">
+            <label for="issueDescription" class="form-label required">Detailed Problem Description</label>
+            <textarea id="issueDescription" class="form-textarea" rows="3" placeholder="Please describe the defect in detail (e.g. How long has it been broken? Is there any water spilling or sparking? Specific bench or fixture location?)" required></textarea>
+          </div>
+
+          <!-- Attachment / Image Upload Simulation -->
+          <div class="form-group full-width">
+            <label class="form-label">Photo Evidence / Attachment (Optional)</label>
+            <div class="upload-dropzone" id="uploadDropzone">
+              <input type="file" id="issuePhotoInput" accept="image/*" class="file-input-hidden">
+              <div class="upload-prompt" id="uploadPrompt">
+                <i class="ph ph-camera-plus upload-icon"></i>
+                <span>Click to attach photo or drag & drop</span>
+                <span class="upload-hint">Simulate attaching a picture of the damaged item</span>
+              </div>
+              <div class="photo-preview-box" id="photoPreviewBox" style="display: none;">
+                <img id="photoPreviewImg" src="" alt="Uploaded issue preview">
+                <button type="button" class="remove-photo-btn" id="removePhotoBtn" title="Remove photo">&times;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submitter Details -->
+          <div class="form-group">
+            <label for="reporterName" class="form-label required">Your Name</label>
+            <input type="text" id="reporterName" class="form-input" placeholder="e.g. Yuvaadhika / Dr. Sharma" required>
+          </div>
+
+          <div class="form-group">
+            <label for="reporterId" class="form-label required">Roll Number / Employee ID</label>
+            <input type="text" id="reporterId" class="form-input" placeholder="e.g. 21CS108 / FAC-442" required>
+          </div>
+
+          <div class="form-group">
+            <label for="reporterEmail" class="form-label">Email Address</label>
+            <input type="email" id="reporterEmail" class="form-input" placeholder="student@campus.edu">
+          </div>
+
+          <div class="form-group">
+            <label for="reporterPhone" class="form-label">Phone Number (Optional)</label>
+            <input type="tel" id="reporterPhone" class="form-input" placeholder="e.g. +91 9876543210">
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelReportBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitReportBtn">
+            <i class="ph-bold ph-paper-plane-tilt"></i> Submit Complaint
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- MODAL 2: Issue Details, Timeline & Status Update Modal -->
+  <div class="modal-overlay" id="detailsModal" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <div class="d-flex align-center gap-sm">
+          <span class="ticket-id-tag" id="modalTicketId">FIX-2026-000</span>
+          <span class="badge" id="modalStatusBadge">Status</span>
+          <span class="badge" id="modalPriorityBadge">Priority</span>
+        </div>
+        <button class="modal-close-btn" id="closeDetailsModalBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Main Title & Location Summary -->
+        <div class="ticket-details-hero">
+          <h2 class="ticket-modal-title" id="modalTicketTitle">Issue Title</h2>
+          <div class="ticket-meta-pills">
+            <span class="meta-pill"><i class="ph ph-tag"></i> <span id="modalCategory">Category</span></span>
+            <span class="meta-pill"><i class="ph ph-buildings"></i> <span id="modalLocation">Building & Room</span></span>
+            <span class="meta-pill"><i class="ph ph-calendar"></i> <span id="modalDate">Reported Date</span></span>
+            <span class="meta-pill"><i class="ph ph-user"></i> <span id="modalReporter">Reporter Name</span></span>
+          </div>
+        </div>
+
+        <!-- Issue Progress Stepper -->
+        <div class="stepper-card">
+          <h4 class="subheading"><i class="ph ph-git-commit"></i> Resolution Lifecycle</h4>
+          <div class="stepper-track" id="modalStepperTrack">
+            <!-- Dynamic steps generated by JS -->
+          </div>
+        </div>
+
+        <!-- Description & Attached Image Section -->
+        <div class="details-section-grid">
+          <div class="details-desc-box">
+            <h4 class="subheading"><i class="ph ph-text-align-left"></i> Problem Description</h4>
+            <p class="desc-text" id="modalDescription">Detailed text description of the issue...</p>
+            
+            <div class="reporter-box mt-md">
+              <span class="reporter-label"><i class="ph ph-identification-card"></i> Submitter Contact:</span>
+              <span id="modalReporterContact">Yuvaadhika (Roll: 21CS108) • student@campus.edu</span>
+            </div>
+          </div>
+
+          <div class="details-photo-box" id="modalPhotoContainer">
+            <h4 class="subheading"><i class="ph ph-image"></i> Attached Photo Evidence</h4>
+            <div class="modal-photo-preview">
+              <img id="modalPhotoImg" src="" alt="Issue evidence">
+            </div>
+          </div>
+        </div>
+
+        <!-- Management & Technician Assignment Controls (Admin / Staff View) -->
+        <div class="admin-action-card" id="adminControlsSection">
+          <div class="admin-card-header">
+            <h4><i class="ph-bold ph-shield-check"></i> Facility Management & Status Controls</h4>
+            <span class="role-badge">Admin Controls</span>
+          </div>
+          <div class="admin-controls-grid">
+            <div class="form-group">
+              <label for="updateStatusSelect" class="form-label">Update Status</label>
+              <select id="updateStatusSelect" class="form-select">
+                <option value="Pending">Pending (Under Review)</option>
+                <option value="In Progress">In Progress (Active Work)</option>
+                <option value="Resolved">Resolved (Completed)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="updatePrioritySelect" class="form-label">Reassign Priority</label>
+              <select id="updatePrioritySelect" class="form-select">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="assignTechSelect" class="form-label">Assigned Technician</label>
+              <select id="assignTechSelect" class="form-select">
+                <option value="Unassigned">-- Unassigned --</option>
+                <option value="Rajesh Kumar (Electrician)">Rajesh Kumar (Electrician)</option>
+                <option value="Suresh M. (Plumbing Tech)">Suresh M. (Plumbing Tech)</option>
+                <option value="Anand Verma (Carpenter)">Anand Verma (Carpenter)</option>
+                <option value="Deepak R. (AV & IT Support)">Deepak R. (AV & IT Support)</option>
+                <option value="Campus Facilities Rapid Team">Campus Facilities Rapid Team</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group mt-sm">
+            <label for="resolutionNoteInput" class="form-label">Add Maintenance Log / Work Note</label>
+            <div class="input-with-button">
+              <input type="text" id="resolutionNoteInput" class="form-input" placeholder="e.g. Technician inspected fixture; replacement capacitor ordered / fixed today at 2 PM">
+              <button type="button" class="btn btn-primary btn-sm" id="applyStatusUpdateBtn">
+                <i class="ph-bold ph-check"></i> Save Updates
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Timeline / Audit Trail -->
+        <div class="timeline-section">
+          <h4 class="subheading"><i class="ph ph-clock-counter-clockwise"></i> Activity & Resolution Timeline</h4>
+          <div class="timeline-list" id="modalTimelineList">
+            <!-- Timeline items generated by JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="closeDetailsFooterBtn">Close</button>
+        <button type="button" class="btn btn-danger-outline" id="deleteComplaintBtn" title="Delete complaint">
+          <i class="ph ph-trash"></i> Delete Ticket
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
