@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FixIt – Campus Maintenance Reporting & Resolution System</title>
-  <meta name="description" content="FixIt is a centralized campus maintenance reporting platform for students, faculty, and administration to report, track, prioritize, and resolve campus infrastructure issues in real-time.">
+  <title>FixIt – Campus Maintenance Reporting & AI Resolution System</title>
+  <meta name="description" content="FixIt is an innovative campus maintenance platform featuring AI Smart Triage, 2D Campus Heatmap, Room QR Code Scanner, Voice Dictation, SLA Timers, Before/After repair verification, and Green Campus Eco-metrics.">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   
-  <!-- Phosphor Icons for modern, clean iconography -->
+  <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- QR Code Library for dynamic room sticker generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
@@ -22,9 +25,14 @@
   <!-- Top Announcement / Live Status Bar -->
   <aside class="top-announcement-bar" role="complementary" aria-label="System status notice">
     <div class="announcement-content">
-      <span class="live-indicator"><span class="pulse-dot"></span> 24/7 Campus Facility Helpdesk</span>
-      <span class="announcement-text">Average issue resolution time across campus: <strong>4.2 Hours</strong></span>
-      <span class="announcement-contact"><i class="ph ph-phone"></i> Emergency Facility Helpline: <strong>Ext. 1800-CAMPUS-FIX</strong></span>
+      <div class="announcement-left">
+        <span class="live-indicator"><span class="pulse-dot"></span> 24/7 Rapid Campus Helpdesk</span>
+        <span class="eco-ticker"><i class="ph-fill ph-plant"></i> Eco-Saved Today: <strong id="topEcoWater">1,820 L</strong> Water • <strong id="topEcoPower">46 kWh</strong> Power</span>
+      </div>
+      <div class="announcement-right">
+        <button class="top-pill-btn" id="openSmsSimulatorBtn"><i class="ph ph-chat-circle-dots"></i> SMS / WhatsApp Alerts</button>
+        <span class="announcement-contact"><i class="ph ph-phone"></i> Emergency: <strong>Ext. 1800-CAMPUS-FIX</strong></span>
+      </div>
     </div>
   </aside>
 
@@ -37,7 +45,7 @@
             <i class="ph-fill ph-wrench"></i>
           </div>
           <div class="brand-text">
-            <span class="brand-title">Fix<span class="brand-accent">It</span></span>
+            <span class="brand-title">Fix<span class="brand-accent">It</span> <span class="ai-badge-header"><i class="ph-bold ph-sparkle"></i> AI</span></span>
             <span class="brand-tagline">Campus Facility Care</span>
           </div>
         </a>
@@ -51,32 +59,41 @@
         </button>
         <button class="nav-link" data-target="complaintsView" id="navComplaints">
           <i class="ph ph-list-bullets"></i>
-          <span>All Complaints</span>
+          <span>Complaints</span>
           <span class="badge-count" id="totalComplaintsPill">0</span>
+        </button>
+        <button class="nav-link" data-target="mapView" id="navMap">
+          <i class="ph ph-map-trifold"></i>
+          <span>Campus Map</span>
+          <span class="badge-hot" id="activeAlertsBadge">Hot</span>
         </button>
         <button class="nav-link" data-target="kanbanView" id="navKanban">
           <i class="ph ph-kanban"></i>
-          <span>Workflow Board</span>
+          <span>Workflow</span>
         </button>
         <button class="nav-link" data-target="trackerView" id="navTracker">
           <i class="ph ph-magnifying-glass"></i>
           <span>Track Ticket</span>
         </button>
+        <button class="nav-link" data-target="qrView" id="navQr">
+          <i class="ph ph-qr-code"></i>
+          <span>Room QR</span>
+        </button>
         <button class="nav-link" data-target="analyticsView" id="navAnalytics">
           <i class="ph ph-chart-donut"></i>
-          <span>Analytics</span>
+          <span>Analytics & Eco</span>
         </button>
       </nav>
 
       <!-- User Role Selector & Action Buttons -->
       <div class="header-actions">
         <!-- Role Simulation Switcher -->
-        <div class="role-selector-wrapper" title="Switch between Student & Admin view to test role features">
+        <div class="role-selector-wrapper" title="Switch between Student, Admin & Technician modes">
           <label for="roleSwitch" class="role-label"><i class="ph ph-user-circle"></i> Role:</label>
           <select id="roleSwitch" class="role-select" aria-label="Switch User Mode">
             <option value="student">Student / Staff (Reporter)</option>
             <option value="admin" selected>Facility Admin (Full Access)</option>
-            <option value="technician">Technician / Maintenance</option>
+            <option value="technician">Technician / Crew</option>
           </select>
         </div>
 
@@ -101,14 +118,20 @@
         <button class="mobile-nav-link" data-target="complaintsView">
           <i class="ph ph-list-bullets"></i> All Complaints (<span id="mobileCount">0</span>)
         </button>
+        <button class="mobile-nav-link" data-target="mapView">
+          <i class="ph ph-map-trifold"></i> Interactive Campus Map
+        </button>
         <button class="mobile-nav-link" data-target="kanbanView">
-          <i class="ph ph-kanban"></i> Workflow Board
+          <i class="ph ph-kanban"></i> Workflow Kanban
         </button>
         <button class="mobile-nav-link" data-target="trackerView">
           <i class="ph ph-magnifying-glass"></i> Track Ticket
         </button>
+        <button class="mobile-nav-link" data-target="qrView">
+          <i class="ph ph-qr-code"></i> Room QR Code Center
+        </button>
         <button class="mobile-nav-link" data-target="analyticsView">
-          <i class="ph ph-chart-donut"></i> Analytics & Stats
+          <i class="ph ph-chart-donut"></i> Analytics & Green Impact
         </button>
       </div>
     </div>
@@ -123,16 +146,22 @@
       <!-- Welcome & Action Banner -->
       <div class="dashboard-hero">
         <div class="hero-text-content">
-          <span class="hero-chip"><i class="ph ph-buildings"></i> Centralized Campus Resolution Portal</span>
+          <div class="hero-chips-wrap">
+            <span class="hero-chip"><i class="ph ph-buildings"></i> Centralized Campus Resolution Portal</span>
+            <span class="hero-chip ai-chip"><i class="ph-fill ph-sparkle"></i> AI Triage Active</span>
+          </div>
           <h1 class="hero-title">Report, Track & Resolve Campus Infrastructure Issues</h1>
-          <p class="hero-subtitle">Encountered broken benches, water leakages, electrical faults, or AV equipment failures? Report instantly with room details and monitor repair progress in real time.</p>
+          <p class="hero-subtitle">Encountered broken benches, water leakages, electrical faults, or AV equipment failures? Report instantly with room details, voice dictation, or QR scan and monitor real-time repair progress.</p>
           
           <div class="hero-quick-actions">
             <button class="btn btn-primary btn-lg" id="heroReportBtn">
               <i class="ph-bold ph-plus"></i> Submit New Complaint
             </button>
+            <button class="btn btn-secondary btn-lg" id="heroScanQrBtn">
+              <i class="ph-bold ph-qr-code"></i> Scan Room QR Code
+            </button>
             <button class="btn btn-secondary btn-lg" id="heroTrackBtn">
-              <i class="ph-bold ph-crosshair"></i> Track Existing Ticket
+              <i class="ph-bold ph-crosshair"></i> Track Ticket
             </button>
           </div>
         </div>
@@ -140,8 +169,8 @@
         <div class="hero-status-widget">
           <div class="facility-status-card">
             <div class="card-status-header">
-              <span class="status-badge live"><i class="ph ph-check-circle"></i> Maintenance Crew On Duty</span>
-              <span class="time-stamp" id="currentTimeStamp">Live Campus Feed</span>
+              <span class="status-badge live"><i class="ph ph-check-circle"></i> Maintenance Crew Active</span>
+              <span class="time-stamp" id="currentTimeStamp">Live Feed</span>
             </div>
             <div class="status-metrics-row">
               <div class="metric-mini">
@@ -150,11 +179,11 @@
               </div>
               <div class="metric-mini">
                 <span class="metric-mini-value" id="heroAvgHours">3.8h</span>
-                <span class="metric-mini-label">Avg. Response Time</span>
+                <span class="metric-mini-label">Avg. Fix Time</span>
               </div>
               <div class="metric-mini">
-                <span class="metric-mini-value" id="heroActiveWorkers">14</span>
-                <span class="metric-mini-label">Active Technicians</span>
+                <span class="metric-mini-value" id="heroSlaCompliance">96.8%</span>
+                <span class="metric-mini-label">SLA Compliance</span>
               </div>
             </div>
             <div class="recent-highlight" id="heroLatestTicker">
@@ -185,7 +214,7 @@
           <div class="stat-details">
             <span class="stat-label">Pending Review</span>
             <h2 class="stat-value" id="statPending">0</h2>
-            <span class="stat-meta">Awaiting technician assignment</span>
+            <span class="stat-meta">Awaiting assignment</span>
           </div>
         </div>
 
@@ -196,7 +225,7 @@
           <div class="stat-details">
             <span class="stat-label">In Progress</span>
             <h2 class="stat-value" id="statInProgress">0</h2>
-            <span class="stat-meta">Work currently underway</span>
+            <span class="stat-meta">Work active under SLA</span>
           </div>
         </div>
 
@@ -207,7 +236,7 @@
           <div class="stat-details">
             <span class="stat-label">Resolved Issues</span>
             <h2 class="stat-value" id="statResolved">0</h2>
-            <span class="stat-meta">Successfully fixed & verified</span>
+            <span class="stat-meta">Verified & rated fixes</span>
           </div>
         </div>
       </div>
@@ -223,15 +252,15 @@
             </div>
           </div>
           <div class="category-bars-list" id="categoryBarsList">
-            <!-- Dynamic Category Rows Generated by JS -->
+            <!-- Dynamic Category Rows -->
           </div>
         </div>
 
-        <!-- Priority & Urgent Attention -->
+        <!-- Priority & Urgent Attention with SLA Timers -->
         <div class="panel-card">
           <div class="panel-header">
             <div>
-              <h3 class="panel-title"><i class="ph ph-warning-octagon"></i> Priority Distribution & Urgent Fixes</h3>
+              <h3 class="panel-title"><i class="ph ph-warning-octagon"></i> Priority & Active SLA Countdown</h3>
               <p class="panel-subtitle">Immediate safety and classroom blockers</p>
             </div>
             <span class="badge badge-danger" id="criticalCountBadge">0 Critical</span>
@@ -239,22 +268,22 @@
           <div class="priority-breakdown-wrapper">
             <div class="priority-meter-row">
               <div class="priority-meter-item critical">
-                <span class="label">Critical / Urgent</span>
+                <span class="label">Critical (4h SLA)</span>
                 <span class="count" id="countCritical">0</span>
                 <div class="meter-bar"><div class="fill" id="fillCritical"></div></div>
               </div>
               <div class="priority-meter-item high">
-                <span class="label">High Priority</span>
+                <span class="label">High (12h SLA)</span>
                 <span class="count" id="countHigh">0</span>
                 <div class="meter-bar"><div class="fill" id="fillHigh"></div></div>
               </div>
               <div class="priority-meter-item medium">
-                <span class="label">Medium</span>
+                <span class="label">Medium (24h)</span>
                 <span class="count" id="countMedium">0</span>
                 <div class="meter-bar"><div class="fill" id="fillMedium"></div></div>
               </div>
               <div class="priority-meter-item low">
-                <span class="label">Low / Routine</span>
+                <span class="label">Low (72h)</span>
                 <span class="count" id="countLow">0</span>
                 <div class="meter-bar"><div class="fill" id="fillLow"></div></div>
               </div>
@@ -274,8 +303,8 @@
       <div class="panel-card mt-lg">
         <div class="panel-header flex-wrap">
           <div>
-            <h3 class="panel-title"><i class="ph ph-clock-counter-clockwise"></i> Recently Reported Issues</h3>
-            <p class="panel-subtitle">Real-time stream of campus maintenance reports</p>
+            <h3 class="panel-title"><i class="ph ph-clock-counter-clockwise"></i> Live Campus Feed</h3>
+            <p class="panel-subtitle">Real-time maintenance complaints with student upvotes</p>
           </div>
           <div class="panel-header-actions">
             <button class="btn btn-secondary btn-sm" id="viewAllComplaintsBtn">
@@ -299,7 +328,7 @@
           <p class="page-subheading">Comprehensive repository of all reported infrastructure & maintenance tickets</p>
         </div>
         <div class="header-tools">
-          <button class="btn btn-secondary btn-sm" id="exportDataBtn" title="Export as CSV/JSON">
+          <button class="btn btn-secondary btn-sm" id="exportDataBtn" title="Export as CSV">
             <i class="ph ph-download-simple"></i> Export CSV
           </button>
           <button class="btn btn-secondary btn-sm" id="printReportBtn" title="Print friendly report">
@@ -315,7 +344,7 @@
       <div class="toolbar-panel">
         <div class="search-box-wrapper">
           <i class="ph ph-magnifying-glass search-icon"></i>
-          <input type="text" id="searchInput" class="search-input" placeholder="Search by Ticket ID, Title, Room, Building, or Submitter...">
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by Ticket ID, Title, Room, Building, Submitter, or Keyword...">
           <button class="clear-search-btn" id="clearSearchBtn" aria-label="Clear Search">&times;</button>
         </div>
 
@@ -380,6 +409,7 @@
             <select id="sortBy" class="filter-select">
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
+              <option value="upvotes-desc">Most Upvoted (+1)</option>
               <option value="priority-desc">Priority: High to Low</option>
               <option value="priority-asc">Priority: Low to High</option>
             </select>
@@ -422,7 +452,8 @@
               <th>Category</th>
               <th>Priority</th>
               <th>Status</th>
-              <th>Reported By</th>
+              <th>SLA Status</th>
+              <th>Upvotes</th>
               <th>Date</th>
               <th>Actions</th>
             </tr>
@@ -443,7 +474,45 @@
     </section>
 
 
-    <!-- View 3: Interactive Kanban Workflow Board -->
+    <!-- View 3: Interactive 2D Campus Map & Zone Heatmap -->
+    <section id="mapView" class="app-view">
+      <div class="section-title-bar">
+        <div>
+          <h1 class="page-heading"><i class="ph-fill ph-map-pin"></i> Interactive Campus Facility Map</h1>
+          <p class="page-subheading">Click any building or block to inspect active maintenance tickets, priority heatzones, and report issues directly.</p>
+        </div>
+        <div class="map-legend">
+          <span class="legend-item"><span class="legend-dot red"></span> Critical Issues</span>
+          <span class="legend-item"><span class="legend-dot amber"></span> Active In Progress</span>
+          <span class="legend-item"><span class="legend-dot green"></span> All Clear</span>
+        </div>
+      </div>
+
+      <div class="campus-map-wrapper">
+        <div class="map-buildings-grid" id="campusMapGrid">
+          <!-- Interactive Building Cards injected by JS -->
+        </div>
+
+        <div class="map-selected-building-panel" id="mapSelectedBuildingPanel">
+          <div class="panel-header">
+            <div>
+              <span class="building-badge-pill" id="selectedBuildingBadge">Building Selected</span>
+              <h3 class="panel-title mt-xs" id="selectedBuildingTitle">Select a building on the map</h3>
+              <p class="panel-subtitle" id="selectedBuildingSubtitle">Click any zone above to view localized complaints</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="mapReportHereBtn" style="display: none;">
+              <i class="ph ph-plus"></i> Report Issue Here
+            </button>
+          </div>
+          <div class="building-complaints-list" id="buildingComplaintsList">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- View 4: Interactive Kanban Workflow Board -->
     <section id="kanbanView" class="app-view">
       <div class="section-title-bar">
         <div>
@@ -451,7 +520,7 @@
           <p class="page-subheading">Track issues through progressive operational stages: Pending, In Progress, and Resolved</p>
         </div>
         <div class="role-tip">
-          <i class="ph ph-info"></i> Tip: Use the action buttons on cards or the Quick Action menu to advance tickets.
+          <i class="ph ph-info"></i> Tip: Use the action buttons on cards to transition tickets through workflow.
         </div>
       </div>
 
@@ -489,7 +558,7 @@
           <div class="kanban-column-header header-resolved">
             <div class="col-title-wrap">
               <span class="status-indicator-dot dot-green"></span>
-              <h3>Resolved & Closed</h3>
+              <h3>Resolved & Verified</h3>
             </div>
             <span class="col-count" id="kanbanResolvedCount">0</span>
           </div>
@@ -501,14 +570,14 @@
     </section>
 
 
-    <!-- View 4: Track Complaint by Ticket ID -->
+    <!-- View 5: Track Complaint by Ticket ID -->
     <section id="trackerView" class="app-view">
       <div class="tracker-hero-card">
         <div class="tracker-icon-badge">
           <i class="ph-fill ph-crosshair"></i>
         </div>
         <h1 class="tracker-title">Live Campus Ticket Tracker</h1>
-        <p class="tracker-desc">Enter your unique complaint reference ID (e.g. <code>FIX-2026-001</code>) to inspect real-time resolution timeline, assigned technicians, and status updates.</p>
+        <p class="tracker-desc">Enter your unique complaint reference ID (e.g. <code>FIX-2026-001</code>) to inspect real-time resolution timeline, assigned technician contact, SLA countdown, and resolution proofs.</p>
 
         <form id="trackerSearchForm" class="tracker-form">
           <div class="tracker-input-group">
@@ -521,8 +590,8 @@
           <div class="tracker-quick-examples">
             <span>Quick sample test IDs:</span>
             <button type="button" class="sample-id-btn" data-id="FIX-2026-001">FIX-2026-001 (Plumbing)</button>
-            <button type="button" class="sample-id-btn" data-id="FIX-2026-002">FIX-2026-002 (Electrical)</button>
-            <button type="button" class="sample-id-btn" data-id="FIX-2026-003">FIX-2026-003 (Furniture)</button>
+            <button type="button" class="sample-id-btn" data-id="FIX-2026-002">FIX-2026-002 (AV Projector)</button>
+            <button type="button" class="sample-id-btn" data-id="FIX-2026-004">FIX-2026-004 (Electrical)</button>
           </div>
         </form>
       </div>
@@ -534,17 +603,141 @@
     </section>
 
 
-    <!-- View 5: Campus Resolution Analytics -->
+    <!-- View 6: Room QR Code Scanner & Generator -->
+    <section id="qrView" class="app-view">
+      <div class="section-title-bar">
+        <div>
+          <h1 class="page-heading"><i class="ph-fill ph-qr-code"></i> Room QR Code Center</h1>
+          <p class="page-subheading">Generate printable QR door stickers for university classrooms/labs or simulate scanning a room sticker.</p>
+        </div>
+      </div>
+
+      <div class="qr-center-grid">
+        <!-- Scan Simulation Panel -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title"><i class="ph ph-scan"></i> Instant Room QR Scanner</h3>
+              <p class="panel-subtitle">Students scan room stickers to auto-populate complaint location</p>
+            </div>
+          </div>
+          <div class="qr-scanner-box">
+            <div class="scanner-viewfinder">
+              <div class="scanner-laser"></div>
+              <i class="ph ph-qr-code scan-icon-bg"></i>
+            </div>
+            <p class="scanner-hint">Simulate scanning a classroom or laboratory QR sticker:</p>
+            <div class="quick-qr-presets">
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Science & Lab Block" data-floor="1st Floor" data-room="Chemistry Lab 3 (Room 104)">
+                🧪 Scan Chemistry Lab 3
+              </button>
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Engineering Quad" data-floor="2nd Floor" data-room="Embedded Systems Lab (Room 210)">
+                ⚡ Scan Embedded Lab 210
+              </button>
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Main Academic Block" data-floor="3rd Floor" data-room="Lecture Hall 302">
+                🏛️ Scan Lecture Hall 302
+              </button>
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Central Library" data-floor="2nd Floor" data-room="Digital Periodicals Section">
+                📚 Scan Digital Library
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR Sticker Generator Panel -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title"><i class="ph ph-printer"></i> Printable Room QR Code Generator</h3>
+              <p class="panel-subtitle">Facility Admin tool to generate stickers for every door</p>
+            </div>
+          </div>
+          <div class="qr-generator-form">
+            <div class="form-group">
+              <label for="qrGenBuilding" class="form-label">Select Building</label>
+              <select id="qrGenBuilding" class="form-select">
+                <option value="Main Academic Block">Main Academic Block</option>
+                <option value="Science & Lab Block">Science & Lab Block</option>
+                <option value="Central Library">Central Library</option>
+                <option value="Engineering Quad">Engineering Quad</option>
+                <option value="Hostel Block A">Hostel Block A</option>
+                <option value="Auditorium & Sports Complex">Auditorium & Sports Complex</option>
+              </select>
+            </div>
+            <div class="form-group mt-sm">
+              <label for="qrGenRoom" class="form-label">Room / Lab Name</label>
+              <input type="text" id="qrGenRoom" class="form-input" value="Computer Lab 4 (Room 205)" placeholder="e.g. Physics Lab 2">
+            </div>
+
+            <!-- Printable Sticker Preview -->
+            <div class="printable-qr-card mt-md" id="printableQrSticker">
+              <div class="qr-sticker-header">
+                <i class="ph-fill ph-wrench"></i>
+                <span>CAMPUS FIXIT • RAPID REPORT</span>
+              </div>
+              <div class="qr-sticker-body">
+                <div id="qrcodeContainer"></div>
+                <div class="qr-sticker-details">
+                  <h4 id="qrStickerRoom">Computer Lab 4 (Room 205)</h4>
+                  <p id="qrStickerBuilding">Main Academic Block</p>
+                  <span class="qr-scan-instruction">Scan with camera to report issue</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-md d-flex gap-sm justify-between">
+              <button class="btn btn-secondary btn-sm" id="printQrStickerBtn"><i class="ph ph-printer"></i> Print Sticker</button>
+              <button class="btn btn-primary btn-sm" id="testScanStickerBtn"><i class="ph ph-arrow-right"></i> Test Report with this Room</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- View 7: Campus Resolution Analytics & Green Campus Sustainability -->
     <section id="analyticsView" class="app-view">
       <div class="section-title-bar">
         <div>
-          <h1 class="page-heading"><i class="ph ph-chart-line-up"></i> Campus Maintenance Statistics & Insights</h1>
-          <p class="page-subheading">Data metrics, department workload, and infrastructure resolution performance</p>
+          <h1 class="page-heading"><i class="ph ph-chart-line-up"></i> Campus Statistics & Green Impact</h1>
+          <p class="page-subheading">Data metrics, trade workload, and environmental sustainability savings</p>
+        </div>
+      </div>
+
+      <!-- Green Sustainability Highlights -->
+      <div class="sustainability-banner">
+        <div class="eco-banner-header">
+          <div class="d-flex align-center gap-sm">
+            <div class="eco-leaf-icon"><i class="ph-fill ph-plant"></i></div>
+            <div>
+              <h3 class="eco-title">Green Campus Sustainability & Eco-Impact Score</h3>
+              <p class="eco-sub">Environmental resources conserved through proactive rapid repairs</p>
+            </div>
+          </div>
+          <span class="eco-score-badge">🌱 96.4 / 100 Eco Score</span>
+        </div>
+        <div class="eco-metrics-grid">
+          <div class="eco-metric-card">
+            <span class="eco-val" id="ecoWaterSaved">1,820 L</span>
+            <span class="eco-lbl"><i class="ph-fill ph-drop"></i> Water Conserved (Fixed Leaks)</span>
+          </div>
+          <div class="eco-metric-card">
+            <span class="eco-val" id="ecoEnergySaved">46 kWh</span>
+            <span class="eco-lbl"><i class="ph-fill ph-lightning"></i> Power Saved (Fixed AC / Lights)</span>
+          </div>
+          <div class="eco-metric-card">
+            <span class="eco-val" id="ecoCostSaved">₹ 14,500</span>
+            <span class="eco-lbl"><i class="ph-fill ph-currency-inr"></i> Preventative Maintenance Value</span>
+          </div>
+          <div class="eco-metric-card">
+            <span class="eco-val" id="ecoRatingScore">⭐ 4.8 / 5</span>
+            <span class="eco-lbl"><i class="ph-fill ph-star"></i> Student Repair Satisfaction</span>
+          </div>
         </div>
       </div>
 
       <!-- Analytical Key Metrics -->
-      <div class="analytics-metrics-grid">
+      <div class="analytics-metrics-grid mt-lg">
         <div class="analytics-metric-card">
           <span class="label">Overall Resolution Rate</span>
           <div class="value-row">
@@ -564,12 +757,12 @@
         </div>
 
         <div class="analytics-metric-card">
-          <span class="label">Pending Action Queue</span>
+          <span class="label">Active SLA Compliance</span>
           <div class="value-row">
-            <h2 id="metricPendingBacklog">0</h2>
-            <span class="trend-badge warning" id="backlogBadge"><i class="ph ph-clock"></i> Active</span>
+            <h2 id="metricSlaCompliance">96.8%</h2>
+            <span class="trend-badge positive"><i class="ph ph-shield-check"></i> On Target</span>
           </div>
-          <p class="subtext">Tickets awaiting completion</p>
+          <p class="subtext">Issues resolved within designated SLA window</p>
         </div>
 
         <div class="analytics-metric-card">
@@ -612,7 +805,8 @@
                   <th>Category</th>
                   <th>Logged</th>
                   <th>Resolved</th>
-                  <th>Resolution %</th>
+                  <th>SLA Rate</th>
+                  <th>Rating</th>
                 </tr>
               </thead>
               <tbody id="categoryStatsTableBody">
@@ -636,7 +830,7 @@
           </div>
           <span>Fix<span class="brand-accent">It</span> Campus System</span>
         </div>
-        <p class="footer-text">Empowering students, faculty, and administrative staff to build a safer, well-maintained academic environment through transparent issue reporting.</p>
+        <p class="footer-text">Empowering students, faculty, and administrative staff to build a safer, well-maintained academic environment through transparent issue reporting, AI triage, and green campus sustainability.</p>
       </div>
 
       <div class="footer-links-group">
@@ -644,8 +838,9 @@
         <ul>
           <li><a href="#dashboard" class="footer-nav-link" data-target="dashboardView">Overview Dashboard</a></li>
           <li><a href="#complaints" class="footer-nav-link" data-target="complaintsView">Maintenance Registry</a></li>
+          <li><a href="#map" class="footer-nav-link" data-target="mapView">Campus 2D Map</a></li>
           <li><a href="#kanban" class="footer-nav-link" data-target="kanbanView">Workflow Kanban</a></li>
-          <li><a href="#tracker" class="footer-nav-link" data-target="trackerView">Live Ticket Tracker</a></li>
+          <li><a href="#qr" class="footer-nav-link" data-target="qrView">Room QR Scanner</a></li>
         </ul>
       </div>
 
@@ -655,7 +850,7 @@
           <li><i class="ph ph-phone"></i> Helpdesk: +1 (800) 555-CAMPUS</li>
           <li><i class="ph ph-envelope"></i> helpdesk@campusfacilities.edu</li>
           <li><i class="ph ph-clock"></i> Operations: 24/7 Facility Response</li>
-          <li><i class="ph ph-shield-check"></i> Campus Safety Certified</li>
+          <li><i class="ph ph-shield-check"></i> Campus Safety & ISO Certified</li>
         </ul>
       </div>
     </div>
@@ -670,7 +865,7 @@
   </footer>
 
 
-  <!-- MODAL 1: Submit Complaint Modal -->
+  <!-- MODAL 1: Submit Complaint Modal with AI Triage & Voice Dictation -->
   <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
     <div class="modal-container">
       <div class="modal-header">
@@ -679,7 +874,7 @@
         </div>
         <div>
           <h2 class="modal-title" id="reportModalTitle">Submit Campus Maintenance Complaint</h2>
-          <p class="modal-subtitle">Fill in the issue details. Our facility crew will be assigned promptly.</p>
+          <p class="modal-subtitle">Fill in the defect details. Our AI Assistant auto-triages priority for rapid dispatch.</p>
         </div>
         <button class="modal-close-btn" id="closeReportModalBtn" aria-label="Close modal">&times;</button>
       </div>
@@ -691,6 +886,30 @@
           <div class="form-group full-width">
             <label for="issueTitle" class="form-label required">Issue Title / Summary</label>
             <input type="text" id="issueTitle" class="form-input" placeholder="e.g. Broken wooden chair in Room 204 or Water pipe leakage near chemistry lab" required maxlength="120">
+          </div>
+
+          <!-- Description with Voice Dictation Button -->
+          <div class="form-group full-width">
+            <div class="d-flex justify-between align-center">
+              <label for="issueDescription" class="form-label required">Detailed Problem Description</label>
+              <button type="button" class="voice-btn" id="voiceDictateBtn" title="Speak to dictate description">
+                <i class="ph-bold ph-microphone"></i> <span id="voiceBtnText">Voice Dictation</span>
+              </button>
+            </div>
+            <textarea id="issueDescription" class="form-textarea" rows="3" placeholder="Please describe the defect in detail (e.g. Sparks from switchboard, dripping pipe under sink, loose desk screw)..." required></textarea>
+          </div>
+
+          <!-- AI Smart Triage Suggestion Banner -->
+          <div class="ai-suggestion-box full-width" id="aiSuggestionBox" style="display: none;">
+            <div class="ai-box-header">
+              <span class="ai-box-title"><i class="ph-fill ph-sparkle"></i> AI Smart Triage Suggestion</span>
+              <button type="button" class="btn-ai-apply" id="applyAiSuggestionBtn">
+                <i class="ph-bold ph-check"></i> Apply Suggestion
+              </button>
+            </div>
+            <div class="ai-box-content" id="aiSuggestionContent">
+              <!-- Injected by NLP engine -->
+            </div>
           </div>
 
           <!-- Category Selection with Visual Cards -->
@@ -777,19 +996,13 @@
 
           <!-- Priority Level -->
           <div class="form-group">
-            <label for="issuePriority" class="form-label required">Priority Level</label>
+            <label for="issuePriority" class="form-label required">Priority Level (SLA Target)</label>
             <select id="issuePriority" class="form-select" required>
-              <option value="Low">Low – Routine maintenance (1-3 days)</option>
-              <option value="Medium" selected>Medium – Standard issue (within 24 hours)</option>
-              <option value="High">High – Affecting active classes / labs (4-8 hours)</option>
-              <option value="Critical">Critical – Immediate safety hazard / electrical risk</option>
+              <option value="Low">Low – Routine maintenance (72h SLA)</option>
+              <option value="Medium" selected>Medium – Standard issue (24h SLA)</option>
+              <option value="High">High – Affecting active classes / labs (12h SLA)</option>
+              <option value="Critical">Critical – Immediate safety hazard / hazard (4h SLA)</option>
             </select>
-          </div>
-
-          <!-- Description -->
-          <div class="form-group full-width">
-            <label for="issueDescription" class="form-label required">Detailed Problem Description</label>
-            <textarea id="issueDescription" class="form-textarea" rows="3" placeholder="Please describe the defect in detail (e.g. How long has it been broken? Is there any water spilling or sparking? Specific bench or fixture location?)" required></textarea>
           </div>
 
           <!-- Attachment / Image Upload Simulation -->
@@ -826,7 +1039,7 @@
           </div>
 
           <div class="form-group">
-            <label for="reporterPhone" class="form-label">Phone Number (Optional)</label>
+            <label for="reporterPhone" class="form-label">Phone Number (For SMS Updates)</label>
             <input type="tel" id="reporterPhone" class="form-input" placeholder="e.g. +91 9876543210">
           </div>
 
@@ -843,14 +1056,15 @@
   </div>
 
 
-  <!-- MODAL 2: Issue Details, Timeline & Status Update Modal -->
+  <!-- MODAL 2: Issue Details, SLA Timer, Before/After Slider & Feedback Modal -->
   <div class="modal-overlay" id="detailsModal" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
     <div class="modal-container modal-lg">
       <div class="modal-header">
-        <div class="d-flex align-center gap-sm">
+        <div class="d-flex align-center gap-sm flex-wrap">
           <span class="ticket-id-tag" id="modalTicketId">FIX-2026-000</span>
           <span class="badge" id="modalStatusBadge">Status</span>
           <span class="badge" id="modalPriorityBadge">Priority</span>
+          <span class="sla-badge" id="modalSlaBadge"><i class="ph ph-timer"></i> 2h 40m left</span>
         </div>
         <button class="modal-close-btn" id="closeDetailsModalBtn" aria-label="Close modal">&times;</button>
       </div>
@@ -858,7 +1072,12 @@
       <div class="modal-body-scroll">
         <!-- Main Title & Location Summary -->
         <div class="ticket-details-hero">
-          <h2 class="ticket-modal-title" id="modalTicketTitle">Issue Title</h2>
+          <div class="d-flex justify-between align-center flex-wrap gap-sm">
+            <h2 class="ticket-modal-title" id="modalTicketTitle">Issue Title</h2>
+            <button class="btn-upvote-action" id="modalUpvoteBtn" title="Confirm you are also affected by this issue">
+              <i class="ph-bold ph-thumbs-up"></i> <span id="modalUpvoteText">Affected Me Too (+1)</span>
+            </button>
+          </div>
           <div class="ticket-meta-pills">
             <span class="meta-pill"><i class="ph ph-tag"></i> <span id="modalCategory">Category</span></span>
             <span class="meta-pill"><i class="ph ph-buildings"></i> <span id="modalLocation">Building & Room</span></span>
@@ -871,27 +1090,46 @@
         <div class="stepper-card">
           <h4 class="subheading"><i class="ph ph-git-commit"></i> Resolution Lifecycle</h4>
           <div class="stepper-track" id="modalStepperTrack">
-            <!-- Dynamic steps generated by JS -->
+            <!-- Dynamic steps -->
           </div>
         </div>
 
-        <!-- Description & Attached Image Section -->
-        <div class="details-section-grid">
-          <div class="details-desc-box">
-            <h4 class="subheading"><i class="ph ph-text-align-left"></i> Problem Description</h4>
-            <p class="desc-text" id="modalDescription">Detailed text description of the issue...</p>
-            
-            <div class="reporter-box mt-md">
-              <span class="reporter-label"><i class="ph ph-identification-card"></i> Submitter Contact:</span>
-              <span id="modalReporterContact">Yuvaadhika (Roll: 21CS108) • student@campus.edu</span>
+        <!-- Before & After Repair Comparison Section (For Resolved or In-Progress Tickets) -->
+        <div class="before-after-card" id="modalBeforeAfterCard">
+          <h4 class="subheading"><i class="ph ph-split-vertical"></i> Repair Verification (Before vs After)</h4>
+          <div class="comparison-grid">
+            <div class="comparison-box">
+              <span class="comparison-label before">Before Repair (Reported)</span>
+              <img id="modalBeforeImg" src="" alt="Before repair defect">
+            </div>
+            <div class="comparison-box" id="modalAfterBox">
+              <span class="comparison-label after">After Resolution (Fixed)</span>
+              <img id="modalAfterImg" src="" alt="After repair verification">
             </div>
           </div>
+        </div>
 
-          <div class="details-photo-box" id="modalPhotoContainer">
-            <h4 class="subheading"><i class="ph ph-image"></i> Attached Photo Evidence</h4>
-            <div class="modal-photo-preview">
-              <img id="modalPhotoImg" src="" alt="Issue evidence">
-            </div>
+        <!-- Problem Description & Submitter Info -->
+        <div class="details-desc-box">
+          <h4 class="subheading"><i class="ph ph-text-align-left"></i> Problem Description</h4>
+          <p class="desc-text" id="modalDescription">Detailed text description of the issue...</p>
+          
+          <div class="reporter-box mt-md">
+            <span class="reporter-label"><i class="ph ph-identification-card"></i> Submitter Contact:</span>
+            <span id="modalReporterContact">Yuvaadhika (Roll: 21CS108) • student@campus.edu</span>
+          </div>
+        </div>
+
+        <!-- Student Feedback & Star Rating Section (Visible for Resolved tickets) -->
+        <div class="rating-feedback-card" id="modalRatingSection" style="display: none;">
+          <h4 class="subheading"><i class="ph-fill ph-star"></i> Student Satisfaction & Resolution Rating</h4>
+          <div class="star-rating-row" id="starRatingGroup">
+            <button type="button" class="star-btn" data-rating="1">★</button>
+            <button type="button" class="star-btn" data-rating="2">★</button>
+            <button type="button" class="star-btn" data-rating="3">★</button>
+            <button type="button" class="star-btn" data-rating="4">★</button>
+            <button type="button" class="star-btn" data-rating="5">★</button>
+            <span class="rating-label-text" id="ratingScoreText">Rate the repair quality</span>
           </div>
         </div>
 
@@ -914,10 +1152,10 @@
             <div class="form-group">
               <label for="updatePrioritySelect" class="form-label">Reassign Priority</label>
               <select id="updatePrioritySelect" class="form-select">
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
+                <option value="Low">Low (72h SLA)</option>
+                <option value="Medium">Medium (24h SLA)</option>
+                <option value="High">High (12h SLA)</option>
+                <option value="Critical">Critical (4h SLA)</option>
               </select>
             </div>
 
@@ -937,7 +1175,7 @@
           <div class="form-group mt-sm">
             <label for="resolutionNoteInput" class="form-label">Add Maintenance Log / Work Note</label>
             <div class="input-with-button">
-              <input type="text" id="resolutionNoteInput" class="form-input" placeholder="e.g. Technician inspected fixture; replacement capacitor ordered / fixed today at 2 PM">
+              <input type="text" id="resolutionNoteInput" class="form-input" placeholder="e.g. Replaced faulty circuit breaker / PVC joint sealed. Working tested.">
               <button type="button" class="btn btn-primary btn-sm" id="applyStatusUpdateBtn">
                 <i class="ph-bold ph-check"></i> Save Updates
               </button>
@@ -949,7 +1187,7 @@
         <div class="timeline-section">
           <h4 class="subheading"><i class="ph ph-clock-counter-clockwise"></i> Activity & Resolution Timeline</h4>
           <div class="timeline-list" id="modalTimelineList">
-            <!-- Timeline items generated by JS -->
+            <!-- Timeline items -->
           </div>
         </div>
 
@@ -960,6 +1198,28 @@
         <button type="button" class="btn btn-danger-outline" id="deleteComplaintBtn" title="Delete complaint">
           <i class="ph ph-trash"></i> Delete Ticket
         </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL 3: Live SMS / WhatsApp Alert Notification Drawer Simulator -->
+  <div class="modal-overlay" id="smsModal" role="dialog" aria-modal="true">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <div class="d-flex align-center gap-sm">
+          <div class="modal-header-icon" style="background: #ecfdf5; color: #059669;">
+            <i class="ph-fill ph-whatsapp-logo"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="font-size: 1.1rem;">Instant Alert Simulator</h3>
+            <p class="modal-subtitle">Real-time SMS & WhatsApp alerts dispatched</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeSmsModalBtn">&times;</button>
+      </div>
+      <div class="modal-body-scroll" id="smsFeedList">
+        <!-- Live phone message cards injected by JS -->
       </div>
     </div>
   </div>

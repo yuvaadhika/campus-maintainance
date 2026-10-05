@@ -1,91 +1,59 @@
-# 🛠️ FixIt – Campus Maintenance Reporting & Resolution System
+# 🛠️ FixIt – Campus Maintenance Reporting & AI Resolution System
 
 > **Problem Statement 5 (PS 5):**
 > Problems such as damaged furniture, faulty electrical equipment, water leakage, and classroom maintenance issues are often reported informally, making it difficult to track their resolution.
-> **FixIt** is a centralized campus maintenance platform enabling students, faculty, and administrative staff to report issues, monitor real-time repair progress, assign priority levels, and analyze resolution statistics.
+> **FixIt** is a centralized campus maintenance platform featuring **AI Smart Triage**, **Interactive 2D Campus Map**, **Room QR Scanner**, **Voice Dictation**, **SLA Countdown Timers**, **Before/After Verification**, and **Green Campus Sustainability Metrics**.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Innovative Features Suite
 
-1. **Complaint Submission Portal**:
-   - Categorized reporting: *Electrical, Plumbing & Water, Furniture, Classroom & AV, HVAC / AC, Civil & Infrastructure, Cleanliness & Sanitation*.
-   - Location mapping: Building/Block selection, Floor level, and exact Room/Hall number.
-   - Priority classification: *Low (Routine), Medium (Standard), High (Active Class Blocker), Critical (Urgent Safety/Hazard)*.
-   - Evidence photo upload simulation with instant visual preview.
-   - Submitter contact & student/staff ID logging.
+1. **✨ AI Smart Triage & Auto-Priority Predictor**:
+   - Real-time client-side NLP analyzer detects issue nature from typed keywords (e.g. *sparks, water leaks, projector, AC, cracked tiles*).
+   - Automatically suggests **Category**, **Priority SLA**, and **Rapid Crew Allocation** with a 1-click apply button.
 
-2. **Real-time Resolution Dashboard**:
-   - Real-time KPI summaries: Total Reported, Pending Review, In Progress, Successfully Resolved.
-   - Dynamic issue resolution rate & average response time metrics.
-   - Category load distribution bars and visual percentage breakdowns.
-   - Priority meter breakdown with active high-priority escalation highlights.
+2. **🎙️ Speech-to-Text / Voice Note Dictation**:
+   - Web Speech API integration allowing students and faculty to dictate issues hands-free.
 
-3. **Multi-Faceted Search & Filter Engine**:
-   - Instant search across Ticket IDs, titles, descriptions, locations, and submitters.
-   - Filter by Status (*Pending, In Progress, Resolved*), Category, Priority, and Campus Building.
-   - Sort by newest, oldest, highest priority, and lowest priority.
-   - Dual view modes: **Grid Card View** and **Tabular Data View**.
+3. **🗺️ Interactive 2D Campus Map & Zone Heatmap**:
+   - Bird's eye visual campus layout across Academic Blocks, Labs, Quads, Library, Hostels, and Cafeteria.
+   - Dynamic status heat indicators (🔴 *Critical Alert*, 🟡 *In Progress*, 🟢 *All Clear*) with direct location filtering and 1-click zone reporting.
 
-4. **Kanban Resolution Workflow Board**:
-   - Visual operational lifecycle: *Pending Verification → In Progress & Assigned → Resolved & Closed*.
-   - One-click status advancement and instant status transitions.
+4. **📱 Room QR Code Scanner & Door Sticker Generator**:
+   - QR scanner simulator for instant room auto-fill (*Building, Floor, Room No.*).
+   - Printable QR Code Generator for university doors & labs with live QR generation.
 
-5. **Live Complaint Tracker by Ticket ID**:
-   - Dedicated quick tracker (e.g. `FIX-2026-001`).
-   - 3-stage visual progress stepper (*Submitted → Assigned & In Progress → Resolved & Verified*).
-   - Real-time audit trail and technician activity timeline.
+5. **👍 "Affected Me Too" (+1 Upvote & Duplicate Prevention)**:
+   - Students can upvote active issues instead of submitting spam duplicate tickets, dynamically boosting severity score.
 
-6. **Issue Dossier & Management Modal**:
-   - Complete ticket details with photo evidence inspection.
-   - Facility Admin / Technician controls: Update status, reassign priority level, assign specialized technician, and attach maintenance resolution logs.
-   - Audit trail tracking all updates, timestamps, and staff actions.
+6. **⏳ SLA (Service Level Agreement) Timers & Escalations**:
+   - Live countdown timers based on priority (*Critical: 4h, High: 12h, Medium: 24h, Low: 72h*).
+   - Visual alerts with auto-escalation badges.
 
-7. **Role Simulation Switcher**:
-   - Seamlessly switch between **Student / Staff (Reporter)**, **Facility Admin (Full Access)**, and **Technician** modes to experience different permission workflows.
+7. **📸 "Before vs After" Repair Verification & ⭐ 5-Star Ratings**:
+   - Visual comparison of defect before repair vs. completed fix.
+   - Student feedback and technician star rating for accountability.
 
-8. **Export & Reporting**:
-   - One-click CSV export of maintenance registries.
-   - Print-friendly summary layout.
+8. **💬 Live WhatsApp / SMS Notification Simulator**:
+   - Instant notification drawer previewing SMS & WhatsApp alerts dispatched for ticket logs, technician dispatches, and completions.
 
-9. **Mild, Soothing Pastel UI & Responsive Design**:
-   - Soft, eye-friendly pastel tones (soft slate, pale sage green, mild sky blue, gentle amber).
-   - 100% responsive across desktop, tablet, and mobile with auto-aligning grid/flexbox layouts and mobile drawer navigation.
+9. **🌱 Green Campus Sustainability & Eco-Impact Dashboard**:
+   - Quantifies environmental savings: **Litres of water saved**, **kWh of power conserved**, and **cost optimization**.
 
 ---
 
 ## 🚀 Technology Stack
 
-- **HTML5**: Semantic and accessible markup.
-- **CSS3 (Vanilla)**: Modern CSS custom properties (variables), responsive `@media` queries, flexbox, CSS grid, and micro-animations.
-- **JavaScript (ES6+)**: Zero-dependency vanilla JavaScript with modular state management and LocalStorage persistence.
-- **Phosphor Icons & Google Fonts**: Clean Plus Jakarta Sans typography and modern iconography.
+- **HTML5 & CSS3 (Vanilla)**: Mild pastel design system with smooth `@media` responsiveness for mobile, tablet, and desktop.
+- **JavaScript (ES6+)**: Zero-dependency modular state architecture with LocalStorage persistence.
+- **Web Speech API**: Browser-native voice recognition.
+- **QRCode.js & Phosphor Icons**: Dynamic vector QR rendering and iconography.
 
 ---
 
-## 📁 Project Structure
+## 💻 Live Application
 
-```
-campus-maintainance/
-├── index.html        # Main single-page web application
-├── css/
-│   └── style.css     # Design tokens, mild pastel styling & responsive media queries
-├── js/
-│   ├── data.js       # Initial campus complaints dataset & LocalStorage data store
-│   └── app.js        # Core application logic, filtering, search, modals & analytics
-└── README.md         # Documentation and project overview
-```
-
----
-
-## 💻 Quick Start
-
-1. Clone or download the repository:
-   ```bash
-   git clone https://github.com/yuvaadhika/campus-maintainance.git
-   ```
-2. Open `index.html` in any modern web browser.
-3. No build step or package installation required!
+🔗 **Production URL:** [https://campus-maintainance.vercel.app/](https://campus-maintainance.vercel.app/)
 
 ---
 

@@ -1,17 +1,19 @@
 /**
- * FixIt – Campus Maintenance Reporting & Resolution System
- * Initial Mock Dataset and Storage Manager
+ * FixIt – Campus Maintenance Reporting & AI Resolution System
+ * Initial Mock Dataset and Storage Manager with Innovative Features
  */
 
 // SVG placeholder image generator for realistic issue demonstration
-function createSvgDataUrl(category, text, bgColor, iconColor) {
+function createSvgDataUrl(category, text, bgColor, iconColor, isResolved = false) {
+  const badgeText = isResolved ? "Resolved & Verified" : "Campus FixIt Evidence";
+  const badgeBg = isResolved ? "#10b981" : iconColor;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
     <rect width="100%" height="100%" fill="${bgColor}"/>
     <circle cx="300" cy="170" r="60" fill="${iconColor}" fill-opacity="0.15"/>
     <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="${iconColor}">${category}</text>
     <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#64748b">${text}</text>
-    <rect x="200" y="310" width="200" height="30" rx="15" fill="${iconColor}" fill-opacity="0.1"/>
-    <text x="50%" y="82%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="600" fill="${iconColor}">Campus FixIt Evidence</text>
+    <rect x="180" y="310" width="240" height="32" rx="16" fill="${badgeBg}" fill-opacity="0.15"/>
+    <text x="50%" y="82%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="${badgeBg}">${badgeText}</text>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
@@ -25,9 +27,14 @@ const INITIAL_COMPLAINTS = [
     floor: "1st Floor",
     room: "Chemistry Lab 3 (Room 104)",
     priority: "High",
+    slaHours: 12,
     status: "In Progress",
+    upvotes: 8,
     description: "The drainage pipe below sink #4 is cracked and continuously leaking water onto the floor, causing slippery conditions near reagent storage.",
     photo: createSvgDataUrl("Plumbing Leak", "Chemistry Lab Sink 4", "#f0f9ff", "#0284c7"),
+    afterPhoto: "",
+    rating: 0,
+    ecoImpact: { waterSaved: 380, energySaved: 0, costSaved: 2200 },
     reporterName: "Dr. K. Ramanathan",
     reporterId: "FAC-CHE-042",
     reporterEmail: "ramanathan.k@campus.edu",
@@ -36,7 +43,7 @@ const INITIAL_COMPLAINTS = [
     createdAt: "2026-10-05T09:30:00",
     timeline: [
       { author: "Dr. K. Ramanathan", time: "Oct 5, 09:30 AM", text: "Complaint logged for Chemistry Lab 3 sink leak." },
-      { author: "Facility Admin", time: "Oct 5, 10:15 AM", text: "Priority elevated to High. Assigned to Suresh M. (Plumbing Tech)." },
+      { author: "Facility Admin", time: "Oct 5, 10:15 AM", text: "AI triage classified as Plumbing (High). Assigned to Suresh M. (Plumbing Tech)." },
       { author: "Suresh M.", time: "Oct 5, 02:00 PM", text: "Temporary valve shutoff performed. Replacement PVC elbow joint requested." }
     ]
   },
@@ -48,9 +55,14 @@ const INITIAL_COMPLAINTS = [
     floor: "Ground Floor",
     room: "Seminar Hall Audi-2",
     priority: "Medium",
+    slaHours: 24,
     status: "Resolved",
+    upvotes: 19,
     description: "The ceiling-mounted Epson projector disconnects every 5 minutes during guest lectures due to a loose wall port adapter.",
-    photo: createSvgDataUrl("AV Equipment", "Ceiling Projector Audi-2", "#f5f3ff", "#7c3aed"),
+    photo: createSvgDataUrl("AV Defect (Before)", "Ceiling Projector Audi-2", "#f5f3ff", "#7c3aed"),
+    afterPhoto: createSvgDataUrl("AV Restored (After)", "Projector Display Tested 1080p", "#f0fdf4", "#15803d", true),
+    rating: 5,
+    ecoImpact: { waterSaved: 0, energySaved: 12, costSaved: 1500 },
     reporterName: "Yuvaadhika",
     reporterId: "21CS108",
     reporterEmail: "yuvaadhika@student.campus.edu",
@@ -61,7 +73,8 @@ const INITIAL_COMPLAINTS = [
     timeline: [
       { author: "Yuvaadhika", time: "Oct 4, 11:20 AM", text: "Complaint submitted via student portal." },
       { author: "Deepak R.", time: "Oct 4, 01:10 PM", text: "Inspected wiring. Replaced faulty 10m high-speed HDMI line." },
-      { author: "Deepak R.", time: "Oct 4, 03:45 PM", text: "Tested with 2 laptops for 30 mins. Display working stably. Marked as Resolved." }
+      { author: "Deepak R.", time: "Oct 4, 03:45 PM", text: "Tested with 2 laptops for 30 mins. Display working stably. Marked as Resolved." },
+      { author: "Yuvaadhika", time: "Oct 4, 04:00 PM", text: "Rated 5/5 stars: Excellent prompt repair before evening symposium!" }
     ]
   },
   {
@@ -72,9 +85,14 @@ const INITIAL_COMPLAINTS = [
     floor: "3rd Floor",
     room: "Lecture Hall 302 (Row 4)",
     priority: "Low",
+    slaHours: 72,
     status: "Pending",
+    upvotes: 4,
     description: "Desk bench #14 in Row 4 has detached wooden slats and protruding screws that can cause clothing tears or scratches.",
     photo: createSvgDataUrl("Furniture Defect", "Desk Bench 14 Row 4", "#fffbeb", "#d97706"),
+    afterPhoto: "",
+    rating: 0,
+    ecoImpact: { waterSaved: 0, energySaved: 0, costSaved: 800 },
     reporterName: "Priya Sundaram",
     reporterId: "22EC054",
     reporterEmail: "priya.s@student.campus.edu",
@@ -93,9 +111,14 @@ const INITIAL_COMPLAINTS = [
     floor: "2nd Floor",
     room: "Embedded Systems Lab (Room 210)",
     priority: "Critical",
+    slaHours: 4,
     status: "In Progress",
+    upvotes: 27,
     description: "Main power outlet cluster next to Workbench #3 produced visible sparks when plugging in oscilloscope. Strong burning plastic odor.",
     photo: createSvgDataUrl("Electrical Hazard", "Switchboard Workbench 3", "#fff1f2", "#be123c"),
+    afterPhoto: "",
+    rating: 0,
+    ecoImpact: { waterSaved: 0, energySaved: 18, costSaved: 4500 },
     reporterName: "Prof. Arvind Ghosh",
     reporterId: "FAC-EEE-019",
     reporterEmail: "arvind.g@campus.edu",
@@ -103,7 +126,7 @@ const INITIAL_COMPLAINTS = [
     assignedTo: "Rajesh Kumar (Electrician)",
     createdAt: "2026-10-06T08:15:00",
     timeline: [
-      { author: "Prof. Arvind Ghosh", time: "Oct 6, 08:15 AM", text: "Urgent electrical complaint submitted." },
+      { author: "Prof. Arvind Ghosh", time: "Oct 6, 08:15 AM", text: "Urgent electrical complaint submitted. Auto-triaged to Critical." },
       { author: "Campus Safety", time: "Oct 6, 08:20 AM", text: "MCB isolated for safety. Rajesh Kumar dispatched to site." }
     ]
   },
@@ -115,9 +138,14 @@ const INITIAL_COMPLAINTS = [
     floor: "2nd Floor",
     room: "Digital Periodicals Section",
     priority: "Medium",
+    slaHours: 24,
     status: "Pending",
+    upvotes: 11,
     description: "The 2-Ton Carrier unit in the digital section is making grinding vibrations and no cooling is produced during afternoon peak hours.",
     photo: createSvgDataUrl("HVAC Unit", "Digital Library Split AC", "#f0fdfa", "#0d9488"),
+    afterPhoto: "",
+    rating: 0,
+    ecoImpact: { waterSaved: 0, energySaved: 24, costSaved: 3000 },
     reporterName: "S. Murugan (Librarian)",
     reporterId: "LIB-STAFF-08",
     reporterEmail: "library.help@campus.edu",
@@ -136,9 +164,14 @@ const INITIAL_COMPLAINTS = [
     floor: "1st Floor",
     room: "West Wing Common Washroom",
     priority: "High",
+    slaHours: 12,
     status: "Resolved",
+    upvotes: 14,
     description: "Tap spindle broke while turning off. Water continuously spilling into drainage channel.",
-    photo: createSvgDataUrl("Plumbing Fixed", "Hostel A Washroom", "#f0f9ff", "#0284c7"),
+    photo: createSvgDataUrl("Plumbing Leak", "Hostel A Washroom Tap", "#f0f9ff", "#0284c7"),
+    afterPhoto: createSvgDataUrl("New Brass Tap (After)", "Repaired & Pressure Tested", "#f0fdf4", "#15803d", true),
+    rating: 5,
+    ecoImpact: { waterSaved: 1440, energySaved: 0, costSaved: 1800 },
     reporterName: "Rohit Nambiar",
     reporterId: "23ME112",
     reporterEmail: "rohit.n@student.campus.edu",
@@ -160,9 +193,14 @@ const INITIAL_COMPLAINTS = [
     floor: "Ground Floor",
     room: "Main Entrance Porch",
     priority: "Medium",
+    slaHours: 24,
     status: "Pending",
+    upvotes: 6,
     description: "Three large granite tiles are cracked and uneven, creating a tripping hazard for students entering the dining hall.",
     photo: createSvgDataUrl("Civil Damage", "Cafeteria Entrance Porch", "#f5f5f4", "#78716c"),
+    afterPhoto: "",
+    rating: 0,
+    ecoImpact: { waterSaved: 0, energySaved: 0, costSaved: 1200 },
     reporterName: "Ananya Iyer",
     reporterId: "22BT018",
     reporterEmail: "ananya.i@student.campus.edu",
@@ -176,7 +214,7 @@ const INITIAL_COMPLAINTS = [
   }
 ];
 
-const STORAGE_KEY = "fixit_campus_complaints_v1";
+const STORAGE_KEY = "fixit_campus_complaints_v2";
 
 const DataStore = {
   getComplaints() {
@@ -188,7 +226,6 @@ const DataStore = {
     } catch (e) {
       console.warn("LocalStorage access error:", e);
     }
-    // Initialize default if not exists
     this.saveComplaints(INITIAL_COMPLAINTS);
     return INITIAL_COMPLAINTS;
   },
@@ -215,6 +252,28 @@ const DataStore = {
       list[index] = { ...list[index], ...updatedFields };
       this.saveComplaints(list);
       return list[index];
+    }
+    return null;
+  },
+
+  incrementUpvote(id) {
+    const list = this.getComplaints();
+    const item = list.find(c => c.id === id);
+    if (item) {
+      item.upvotes = (item.upvotes || 0) + 1;
+      this.saveComplaints(list);
+      return item.upvotes;
+    }
+    return 0;
+  },
+
+  rateComplaint(id, rating) {
+    const list = this.getComplaints();
+    const item = list.find(c => c.id === id);
+    if (item) {
+      item.rating = rating;
+      this.saveComplaints(list);
+      return item;
     }
     return null;
   },
