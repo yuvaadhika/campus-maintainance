@@ -89,15 +89,15 @@
       <div class="header-actions">
         <!-- Role Simulation Switcher -->
         <div class="role-selector-wrapper" title="Switch between Student, Admin & Technician modes">
-          <label for="roleSwitch" class="role-label"><i class="ph ph-user-circle"></i> Role:</label>
+          <label for="roleSwitch" class="role-label"><i class="ph ph-user-circle"></i></label>
           <select id="roleSwitch" class="role-select" aria-label="Switch User Mode">
-            <option value="student">Student / Staff (Reporter)</option>
-            <option value="admin" selected>Facility Admin (Full Access)</option>
-            <option value="technician">Technician / Crew</option>
+            <option value="student">Student</option>
+            <option value="admin" selected>Admin</option>
+            <option value="technician">Technician</option>
           </select>
         </div>
 
-        <button class="btn btn-primary" id="openReportModalBtn">
+        <button class="btn btn-primary btn-header-action" id="openReportModalBtn">
           <i class="ph ph-plus-circle"></i>
           <span>Report Issue</span>
         </button>

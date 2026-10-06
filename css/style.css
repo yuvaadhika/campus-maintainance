@@ -112,6 +112,8 @@ html {
   line-height: 1.5;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -142,13 +144,14 @@ a {
 .top-announcement-bar {
   background: #f1f5f9;
   border-bottom: 1px solid var(--border-subtle);
-  padding: 8px 24px;
+  padding: 8px 20px;
   font-size: 0.82rem;
   color: var(--text-secondary);
+  width: 100%;
 }
 
 .announcement-content {
-  max-width: 1320px;
+  max-width: 1360px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -160,7 +163,7 @@ a {
 .announcement-left, .announcement-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -219,30 +222,34 @@ a {
   border-color: #93c5fd;
 }
 
-/* --- 4. Main Site Header & Nav Bar --- */
+/* --- 4. Main Site Header (Pixel-Perfect Alignment) --- */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 90;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-xs);
+  width: 100%;
 }
 
 .header-container {
-  max-width: 1320px;
+  max-width: 1360px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .brand-section {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .brand-logo {
@@ -252,15 +259,15 @@ a {
 }
 
 .brand-icon {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
   flex-shrink: 0;
 }
@@ -278,7 +285,7 @@ a {
 }
 
 .brand-title {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -306,7 +313,7 @@ a {
 }
 
 .brand-tagline {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -318,22 +325,23 @@ a {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: var(--bg-surface-subtle);
-  padding: 4px;
+  padding: 3px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+  flex-shrink: 1;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: 5px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
   background: transparent;
   border: none;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -356,7 +364,7 @@ a {
 .badge-count {
   background: #dbeafe;
   color: #1e40af;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   padding: 2px 6px;
   border-radius: var(--radius-full);
   font-weight: 700;
@@ -367,7 +375,7 @@ a {
   background: #fee2e2;
   color: #be123c;
   font-size: 0.65rem;
-  padding: 2px 6px;
+  padding: 2px 5px;
   border-radius: var(--radius-full);
   font-weight: 800;
   text-transform: uppercase;
@@ -378,38 +386,47 @@ a {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .role-selector-wrapper {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  font-size: 0.82rem;
-  height: 38px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  height: 36px;
+  flex-shrink: 0;
 }
 
 .role-label {
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   font-weight: 600;
-  white-space: nowrap;
+  font-size: 1rem;
 }
 
 .role-select {
   border: none;
   background: transparent;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--text-primary);
   outline: none;
   cursor: pointer;
+}
+
+.btn-header-action {
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .mobile-menu-btn {
@@ -421,11 +438,12 @@ a {
   font-size: 1.3rem;
   color: var(--text-secondary);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .mobile-nav-drawer {
   display: none;
-  padding: 12px 24px 16px;
+  padding: 12px 20px 16px;
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface);
 }
@@ -444,7 +462,7 @@ a {
   border-radius: var(--radius-sm);
   background: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -549,11 +567,12 @@ a {
 
 /* --- 6. Main Container Layout --- */
 .main-container {
-  max-width: 1320px;
+  max-width: 1360px;
   width: 100%;
   margin: 0 auto;
-  padding: 28px 24px;
+  padding: 24px 20px;
   flex: 1;
+  box-sizing: border-box;
 }
 
 .app-view {
@@ -1150,7 +1169,7 @@ a {
   color: var(--text-muted);
 }
 
-/* --- 12. Complaints Grid & Card System (Aligned) --- */
+/* --- 12. Complaints Grid & Card System --- */
 .complaints-grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -1418,7 +1437,7 @@ a {
   border: 1px solid #fca5a5;
 }
 
-/* --- 14. Data Table (Aligned) --- */
+/* --- 14. Data Table --- */
 .complaints-table-container {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -1916,7 +1935,7 @@ a {
   justify-content: flex-start;
 }
 
-/* Printable QR Sticker (Aligned) */
+/* Printable QR Sticker */
 .printable-qr-card {
   background: #ffffff;
   border: 2px solid #0f172a;
@@ -2197,7 +2216,7 @@ a {
   margin-bottom: 16px;
 }
 
-/* --- 21. Modal Dialogs System (Aligned) --- */
+/* --- 21. Modal Dialogs System --- */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -2958,12 +2977,13 @@ a {
 .site-footer {
   background: #ffffff;
   border-top: 1px solid var(--border-subtle);
-  padding: 40px 24px 20px;
+  padding: 40px 20px 20px;
   margin-top: auto;
+  width: 100%;
 }
 
 .footer-container {
-  max-width: 1320px;
+  max-width: 1360px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1.5fr;
@@ -3014,7 +3034,7 @@ a {
 }
 
 .footer-bottom {
-  max-width: 1320px;
+  max-width: 1360px;
   margin: 0 auto;
   border-top: 1px solid var(--border-subtle);
   padding-top: 18px;
@@ -3084,8 +3104,24 @@ a {
    27. Comprehensive Responsive Breakpoints (@media queries)
    ========================================================================== */
 
-/* Laptop & Medium Screens (max-width: 1024px) */
-@media (max-width: 1024px) {
+/* Laptop & Medium Screens (max-width: 1200px) - Header collapses gracefully */
+@media (max-width: 1200px) {
+  .main-nav {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .mobile-nav-drawer.active {
+    display: block;
+  }
+
+  .header-container {
+    padding: 10px 16px;
+  }
+
   .dashboard-hero {
     grid-template-columns: 1fr;
     gap: 22px;
@@ -3126,32 +3162,16 @@ a {
 
 /* Tablet Screens (max-width: 768px) */
 @media (max-width: 768px) {
-  .header-container {
-    padding: 10px 16px;
-  }
-
-  .main-nav {
-    display: none;
-  }
-
-  .mobile-menu-btn {
-    display: block;
-  }
-
-  .mobile-nav-drawer.active {
-    display: block;
-  }
-
   .main-container {
-    padding: 18px 16px;
+    padding: 16px 14px;
   }
 
   .dashboard-hero {
-    padding: 22px;
+    padding: 20px 16px;
   }
 
   .hero-title {
-    font-size: 1.55rem;
+    font-size: 1.5rem;
   }
 
   .hero-quick-actions {
