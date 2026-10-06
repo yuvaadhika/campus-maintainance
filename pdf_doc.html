@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FixIt – Campus Maintenance Reporting System (Full Prototype Guide)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+    @page {
+      size: A4;
+      margin: 15mm 15mm 15mm 15mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .doc-header {
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .doc-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+
+    .doc-title span {
+      color: #2563eb;
+    }
+
+    .doc-meta {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .project-links-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+    }
+
+    .project-links-box a {
+      color: #1d4ed8;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-heading {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e293b;
+      border-left: 4px solid #3b82f6;
+      padding-left: 8px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .feature-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+    }
+
+    .feature-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .feature-num-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .feature-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+
+    .feature-desc-tanglish {
+      color: #334155;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .feature-bullet-points {
+      list-style-position: inside;
+      font-size: 11.5px;
+      color: #475569;
+      padding-left: 4px;
+    }
+
+    .feature-bullet-points li {
+      margin-bottom: 3px;
+    }
+
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: #e2e8f0;
+      padding: 1px 4px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      margin-top: 10px;
+      page-break-inside: avoid;
+    }
+
+    .summary-table th {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      font-weight: 700;
+      color: #334155;
+      text-align: left;
+    }
+
+    .summary-table td {
+      border: 1px solid #e2e8f0;
+      padding: 7px 10px;
+      color: #1e293b;
+    }
+
+    .summary-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .demo-steps-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      page-break-inside: avoid;
+    }
+
+    .demo-steps-box h4 {
+      color: #166534;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .demo-steps-box ol {
+      list-style-position: inside;
+      font-size: 11.5px;
+      color: #14532d;
+    }
+
+    .demo-steps-box li {
+      margin-bottom: 5px;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 10.5px;
+      color: #94a3b8;
+      margin-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div>
+      <h1 class="doc-title">Fix<span>It</span> – Campus Maintenance System</h1>
+      <p style="font-size: 12px; color: #64748b; font-weight: 600;">Problem Statement 5 (PS 5) • Complete Prototype Feature Guide (Tanglish)</p>
+    </div>
+    <div class="doc-meta">
+      <span>Project Author: <strong>Yuvaadhika</strong></span><br>
+      <span>Year: 2026 • Status: Fully Live</span>
+    </div>
+  </div>
+
+  <!-- Links Bar -->
+  <div class="project-links-box">
+    <span>🌐 <strong>Live Prototype URL:</strong> <a href="https://campus-maintainance.vercel.app/">https://campus-maintainance.vercel.app/</a></span>
+    <span>📁 <strong>GitHub Repository:</strong> <a href="https://github.com/yuvaadhika/campus-maintainance">yuvaadhika/campus-maintainance</a></span>
+  </div>
+
+  <!-- Problem Statement Overview -->
+  <div class="section">
+    <h2 class="section-heading">📌 1. Problem Statement & Solution Overview</h2>
+    <div class="feature-card">
+      <p class="feature-desc-tanglish">
+        <strong>Problem:</strong> University campus-la damaged furniture (broken chairs/desks), faulty electrical equipment (sparking switchboards, non-working fans), water leakages (washrooms, labs), and classroom AV issues informal-ha report aaguthu. Athanaala repair status track panna mudiyama pending-la poguthu.
+      </p>
+      <p class="feature-desc-tanglish" style="margin-top: 6px;">
+        <strong>FixIt Solution:</strong> Oru centralized web platform. Students, Teachers, and Admin ellarume issues-ai photo, location, priority-yoda submit panni, real-time-la resolution progress monitor panna mudiyum.
+      </p>
+    </div>
+  </div>
+
+  <!-- All Features Explained in Tanglish -->
+  <div class="section">
+    <h2 class="section-heading">🌟 2. Full Prototype Feature Breakdown (Each Feature Explained)</h2>
+
+    <!-- Feature 1 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">1. Submit Complaint Portal (Photo + Room Details)</h3>
+        <span class="feature-badge">Core Feature</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Students & staff campus-la irukkum issues-ai detail-ha report panna intha modal use aaguthu.
+      </p>
+      <ul class="feature-bullet-points">
+        <li><strong>Category Picker:</strong> Electrical, Plumbing, Furniture, Classroom AV, HVAC/AC, Civil, Sanitation என 7 categories.</li>
+        <li><strong>Exact Location Mapping:</strong> Building Select (Main Block, Science Lab, Quad, Library), Floor level, and exact Room/Hall number.</li>
+        <li><strong>Priority Level:</strong> Low (72h), Medium (24h), High (12h), Critical (4h SLA).</li>
+        <li><strong>Evidence Photo Upload:</strong> Camera மூலமாகவோ அல்லது drag & drop மூலமாகவோ photo attach பண்ணி preview பார்க்கலாம்.</li>
+      </ul>
+    </div>
+
+    <!-- Feature 2 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">2. ✨ AI Smart Triage Assistant (Auto-Prediction)</h3>
+        <span class="feature-badge" style="background:#f5f3ff; color:#6d28d9;">AI Innovation</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        User complaint description type pannum bothe (e.g. <em>"Switchboard sparking with burning smell"</em>), built-in AI NLP engine text-ai analyze pannum.
+      </p>
+      <ul class="feature-bullet-points">
+        <li>Auto-detects <strong>Category</strong> (e.g. ⚡ Electrical) & <strong>Priority</strong> (🚨 Critical).</li>
+        <li><strong>One-Click "Apply Suggestion"</strong> click panninaal, form values automatic-ha select aagidum.</li>
+      </ul>
+    </div>
+
+    <!-- Feature 3 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">3. 🎙️ Voice-to-Text Dictation (Speech Recognition)</h3>
+        <span class="feature-badge" style="background:#fee2e2; color:#be123c;">Smart Tool</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Type panna kastama irunthaal, 🎙️ <strong>"Voice Dictation"</strong> button-ai click panni pesinaal, Web Speech API ungal kuralai text description-ha convert pannidum.
+      </p>
+    </div>
+
+    <!-- Feature 4 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">4. 🗺️ Interactive 2D Campus Map & Zone Heatmap</h3>
+        <span class="feature-badge">Visual Map</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Campus-oda full bird's eye view 2D map:
+      </p>
+      <ul class="feature-bullet-points">
+        <li>🔴 <strong>Red Dot / Heat:</strong> Critical emergency issues உள்ள labs/blocks.</li>
+        <li>🟡 <strong>Amber Dot:</strong> In-progress repair active-ha irukkum buildings.</li>
+        <li>🟢 <strong>Green Dot:</strong> All facilities clear & normal.</li>
+        <li>Building click panninaal, antha building-oda active complaints mattum filter aagi kaatum.</li>
+      </ul>
+    </div>
+
+    <!-- Feature 5 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">5. 📱 Room QR Code Scanner & Door Sticker Generator</h3>
+        <span class="feature-badge">QR Automation</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Room doors-la irukkum QR Code-ai scan panninaal, Building & Room no instant-ha auto-fill aagidum. Admin-ku printable QR stickers generate panni print edukkum facility irukku.
+      </p>
+    </div>
+
+    <!-- Page Break for clean multi-page print -->
+    <div class="page-break"></div>
+
+    <!-- Feature 6 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">6. 👍 "Affected Me Too" (+1 Upvote & Duplicate Prevention)</h3>
+        <span class="feature-badge">Crowdsourcing</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Orey hall-la broken projector-ku 50 students thani thani complaint poda thevailla. Irukkum complaint-ku <strong>"Affected Me Too (+1)"</strong> click panninaal, severity score automatic-ha increase aagum.
+      </p>
+    </div>
+
+    <!-- Feature 7 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">7. ⏳ SLA Countdown Timers & Auto-Escalation</h3>
+        <span class="feature-badge" style="background:#fef3c7; color:#92400e;">SLA Engine</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Every ticket-kum live countdown timer run aagum (Critical: 4h, High: 12h, Medium: 24h). Time expire aanaal <strong>"🚨 SLA Breached - Escalated"</strong> nu alert aagum.
+      </p>
+    </div>
+
+    <!-- Feature 8 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">8. 📋 Kanban Resolution Workflow Board</h3>
+        <span class="feature-badge">Agile Board</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Operational 3-column stage pipeline:
+        <strong>Pending Verification &rarr; In Progress & Assigned &rarr; Resolved & Closed</strong>. Single click-la technician tickets-ai advance panna mudiyum.
+      </p>
+    </div>
+
+    <!-- Feature 9 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">9. 🎯 Live Ticket Tracker (by Unique ID)</h3>
+        <span class="feature-badge">Tracker</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Student <span class="code-tag">FIX-2026-001</span> nu enter panninaal, 3-Stage Visual Stepper, Assigned Technician Name, Contact, and Complete Update Trail theriyum.
+      </p>
+    </div>
+
+    <!-- Feature 10 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">10. 📸 Before vs After Repair Comparison & ⭐ 5-Star Rating</h3>
+        <span class="feature-badge" style="background:#ecfdf5; color:#065f46;">Quality Assurance</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Repair mudintha udan Before Photo vs After Photo comparison theriyum. Student antha velaiyin tharathukku <strong>⭐ 1 to 5 Star Rating & Feedback</strong> kodukkalam.
+      </p>
+    </div>
+
+    <!-- Feature 11 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">11. 💬 Live SMS / WhatsApp Alert Simulator</h3>
+        <span class="feature-badge">Live Alerts</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Ticket register aanaalum, status marinaalum student-oda phone-ku pogum SMS / WhatsApp live alert preview card modal.
+      </p>
+    </div>
+
+    <!-- Feature 12 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">12. 🌱 Green Campus Sustainability & Eco-Impact Score</h3>
+        <span class="feature-badge" style="background:#ecfdf5; color:#047857;">Eco Metric</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Plumbing repairs moolam save aana Water (Litres), Electrical repairs moolam save aana Power (kWh), and University Eco Score (96.4/100) real-time-la calculate aagum.
+      </p>
+    </div>
+
+    <!-- Feature 13 -->
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <h3 class="feature-num-title">13. 💾 Data Storage (LocalStorage) & CSV Export</h3>
+        <span class="feature-badge">Persistence</span>
+      </div>
+      <p class="feature-desc-tanglish">
+        Ella complaints-um browser-oda <span class="code-tag">localStorage</span>-la save aagidum. Page refresh panninaalum data irukkum. <strong>"Export CSV"</strong> click panni Excel file-ha download pannalam.
+      </p>
+    </div>
+  </div>
+
+  <!-- Summary Table -->
+  <div class="section">
+    <h2 class="section-heading">📊 3. Feature Mapping Table</h2>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Requirement / Feature</th>
+          <th>Implementation in FixIt Prototype</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Submit complaints (Category, Desc, Location)</td>
+          <td>Modal with 7 categories, building/room dropdowns, photo attachment & AI suggestions</td>
+          <td>✅ 100% Live</td>
+        </tr>
+        <tr>
+          <td>Dashboard & Resolution Statistics</td>
+          <td>KPI cards, Category progress bars, Building load charts, Resolution Rate %</td>
+          <td>✅ 100% Live</td>
+        </tr>
+        <tr>
+          <td>Assign Priority Levels</td>
+          <td>Critical (4h), High (12h), Medium (24h), Low (72h) with live SLA countdowns</td>
+          <td>✅ 100% Live</td>
+        </tr>
+        <tr>
+          <td>Status Workflow Updates</td>
+          <td>Pending &rarr; In Progress &rarr; Resolved with technician assignment & audit log</td>
+          <td>✅ 100% Live</td>
+        </tr>
+        <tr>
+          <td>Search & Filter Registry</td>
+          <td>Instant live search, multi-select filters, Grid Card View & Table Data View</td>
+          <td>✅ 100% Live</td>
+        </tr>
+        <tr>
+          <td>Responsive Alignment (@media)</td>
+          <td>Fluid flexbox/grid layout for Mobile, Tablet, Laptop & Desktop with zero cutoff</td>
+          <td>✅ 100% Live</td>
+        </tr>
+        <tr>
+          <td>Mild Color Palette</td>
+          <td>Soothing slate mist (#f8fafc), soft pastel mint, sky blue, amber & gentle rose</td>
+          <td>✅ 100% Live</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Viva Demo Guide -->
+  <div class="demo-steps-box">
+    <h4>🎓 Quick Viva / Demo Presentation Steps (How to present to Evaluators):</h4>
+    <ol>
+      <li><strong>Step 1 (Dashboard):</strong> Open <span class="code-tag">https://campus-maintainance.vercel.app/</span> & show KPI summary cards & Eco Impact ticker.</li>
+      <li><strong>Step 2 (Report Issue with AI):</strong> Click <em>"Report Issue"</em>, type <em>"Switchboard sparking with smoke smell"</em> & show AI Auto-suggestion. Click 🎙️ Voice button to show dictation.</li>
+      <li><strong>Step 3 (2D Map & QR Code):</strong> Go to <em>"Campus Map"</em> tab, click Science Block to show localized issues. Go to <em>"Room QR"</em> and click <em>"Scan Chemistry Lab 3"</em>.</li>
+      <li><strong>Step 4 (Workflow & Tracker):</strong> Show <em>"Workflow Kanban"</em> board, click advance button. Open <em>"Track Ticket"</em> and search <span class="code-tag">FIX-2026-002</span> to show Before/After photo comparison & 5-Star rating!</li>
+      <li><strong>Step 5 (Export Data):</strong> Click <em>"Export CSV"</em> in Registry view to show data export to Excel.</li>
+    </ol>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    FixIt – Campus Facility Care & Maintenance Optimization System • Generated for Presentation & Documentation.
+  </div>
+
+</body>
+</html>

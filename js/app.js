@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentViewMode = "grid"; // 'grid' or 'table'
   let activeSelectedTicketId = null;
   let attachedPhotoDataUrl = "";
-  let selectedMapBuilding = "Science & Lab Block";
+  let selectedMapBuilding = "Admin Block";
   let aiSuggestedCategory = "Electrical";
   let aiSuggestedPriority = "Medium";
   let qrCodeInstance = null;
@@ -428,62 +428,73 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 4. Interactive 2D Campus Map
+  // 4. Interactive 2D Campus Map (Saveetha Aerial Engine)
   // ==========================================
-  const CAMPUS_BUILDINGS_DATA = [
-    { name: "Science & Lab Block", icon: "ph-flask", coords: "Zone A - East Wing", zones: ["Chemistry Lab 3", "Bio-Tech Lab", "Physics Lab"] },
-    { name: "Engineering Quad", icon: "ph-cpu", coords: "Zone B - North Quad", zones: ["Embedded Lab 210", "Mechanical Workshop", "CAD Lab"] },
-    { name: "Main Academic Block", icon: "ph-chalkboard-teacher", coords: "Zone C - Central", zones: ["Lecture Hall 302", "Smart Class 101", "Dean Office"] },
-    { name: "Central Library", icon: "ph-books", coords: "Zone D - West Wing", zones: ["Digital Section", "Reading Hall 1", "Archives"] },
-    { name: "Hostel Block A", icon: "ph-bed", coords: "Zone E - South Campus", zones: ["West Wing Restroom", "Common Mess", "Hostel Quad"] },
-    { name: "Hostel Block B", icon: "ph-bed", coords: "Zone F - South Campus", zones: ["East Wing Block", "Study Lounge"] },
-    { name: "Auditorium & Sports Complex", icon: "ph-trophy", coords: "Zone G - Central Arena", zones: ["Seminar Hall Audi-2", "Main Stage", "Indoor Court"] },
-    { name: "Cafeteria Building", icon: "ph-fork-knife", coords: "Zone H - Student Center", zones: ["Entrance Porch", "Dining Hall A", "Snack Bar"] }
-  ];
+  const mapHotspotsContainer = document.getElementById("mapHotspotsContainer");
+  const mapPanLayer = document.getElementById("mapPanLayer");
+  const aerialMapViewport = document.getElementById("aerialMapViewport");
+  const selectedBuildingZone = document.getElementById("selectedBuildingZone");
+  const mapSearchInput = document.getElementById("mapSearchInput");
+  const mapFilterChips = document.getElementById("mapFilterChips");
+  const mapZoomInBtn = document.getElementById("mapZoomInBtn");
+  const mapZoomOutBtn = document.getElementById("mapZoomOutBtn");
+  const mapZoomResetBtn = document.getElementById("mapZoomResetBtn");
+  const mapFullscreenBtn = document.getElementById("mapFullscreenBtn");
+
+  let mapZoomLevel = 1;
+  let currentMapFilter = "all";
+  let mapSearchQuery = "";
 
   function renderCampusMap() {
+    if (!mapHotspotsContainer) return;
     const list = currentComplaints;
-    let gridHtml = "";
+    const campusData = typeof SAVEETHA_CAMPUS_MAP_DATA !== "undefined" ? SAVEETHA_CAMPUS_MAP_DATA : [];
 
-    CAMPUS_BUILDINGS_DATA.forEach(bld => {
+    let hotspotsHtml = "";
+
+    campusData.forEach(bld => {
+      // Check category filter
+      if (currentMapFilter !== "all" && bld.category !== currentMapFilter) {
+        return;
+      }
+
+      // Check search filter
+      if (mapSearchQuery && !bld.name.toLowerCase().includes(mapSearchQuery) && !bld.coords.toLowerCase().includes(mapSearchQuery)) {
+        return;
+      }
+
       const bldComplaints = list.filter(c => c.building === bld.name);
       const activeCount = bldComplaints.filter(c => c.status !== "Resolved").length;
       const criticalCount = bldComplaints.filter(c => c.priority === "Critical" && c.status !== "Resolved").length;
       const isSelected = selectedMapBuilding === bld.name;
 
-      let heatClass = "";
-      let dotClass = "green";
+      let heatClass = "heat-clean";
+      let badgeClass = "badge-green";
 
       if (criticalCount > 0) {
         heatClass = "heat-critical";
-        dotClass = "red";
+        badgeClass = "badge-red";
       } else if (activeCount > 0) {
-        dotClass = "amber";
+        heatClass = "heat-progress";
+        badgeClass = "badge-amber";
       }
 
-      gridHtml += `
-        <div class="campus-building-tile ${heatClass} ${isSelected ? 'active-selected' : ''}" onclick="window.FixItApp.selectCampusBuilding('${bld.name}')">
-          <div class="tile-top">
-            <div class="building-icon-wrap">
-              <i class="ph-fill ${bld.icon}"></i>
-            </div>
-            <span class="legend-dot ${dotClass}" title="${activeCount} active issues"></span>
+      hotspotsHtml += `
+        <div class="map-hotspot ${heatClass} ${isSelected ? 'active-pin' : ''}" 
+             style="left: ${bld.x}%; top: ${bld.y}%;" 
+             onclick="window.FixItApp.selectCampusBuilding('${escapeHtml(bld.name)}')"
+             title="${escapeHtml(bld.name)} • ${activeCount} Active Issues">
+          <div class="hotspot-radar-pulse"></div>
+          <div class="hotspot-pin-inner">
+            <i class="ph-bold ${bld.icon}"></i>
+            <span class="hotspot-badge-count ${badgeClass}">${activeCount}</span>
           </div>
-
-          <div>
-            <h4 class="building-name">${bld.name}</h4>
-            <span style="font-size: 0.72rem; color: #64748b;">${bld.coords}</span>
-          </div>
-
-          <div class="building-stats-strip">
-            <span><strong>${activeCount}</strong> Active Tickets</span>
-            <span>${criticalCount > 0 ? `<strong style="color:#be123c;">${criticalCount} Critical</strong>` : 'Normal'}</span>
-          </div>
+          <div class="hotspot-label-pill">${escapeHtml(bld.shortName || bld.name)}</div>
         </div>
       `;
     });
 
-    campusMapGrid.innerHTML = gridHtml;
+    mapHotspotsContainer.innerHTML = hotspotsHtml;
     renderSelectedBuildingComplaints();
   }
 
@@ -493,21 +504,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSelectedBuildingComplaints() {
-    const bld = CAMPUS_BUILDINGS_DATA.find(b => b.name === selectedMapBuilding) || CAMPUS_BUILDINGS_DATA[0];
+    const campusData = typeof SAVEETHA_CAMPUS_MAP_DATA !== "undefined" ? SAVEETHA_CAMPUS_MAP_DATA : [];
+    const bld = campusData.find(b => b.name === selectedMapBuilding) || campusData[0];
+    if (!bld) return;
+
     const bldComplaints = currentComplaints.filter(c => c.building === bld.name);
+    const activeCount = bldComplaints.filter(c => c.status !== "Resolved").length;
 
-    selectedBuildingBadge.textContent = bld.coords;
-    selectedBuildingTitle.textContent = bld.name;
-    selectedBuildingSubtitle.textContent = `Displaying all ${bldComplaints.length} logged maintenance tickets for this campus zone.`;
-    mapReportHereBtn.style.display = "inline-flex";
+    if (selectedBuildingBadge) selectedBuildingBadge.textContent = bld.category;
+    if (selectedBuildingZone) selectedBuildingZone.innerHTML = `<i class="ph ph-map-pin"></i> ${bld.coords}`;
+    if (selectedBuildingTitle) selectedBuildingTitle.textContent = bld.name;
+    if (selectedBuildingSubtitle) selectedBuildingSubtitle.textContent = bld.description || `Displaying ${bldComplaints.length} logged tickets for this campus zone.`;
+    
+    if (mapReportHereBtn) {
+      mapReportHereBtn.style.display = "inline-flex";
+      mapReportHereBtn.onclick = () => {
+        const issueBldSelect = document.getElementById("issueBuilding");
+        if (issueBldSelect) issueBldSelect.value = bld.name;
+        reportModal.classList.add("active");
+      };
+    }
 
-    mapReportHereBtn.onclick = () => {
-      document.getElementById("issueBuilding").value = bld.name;
-      reportModal.classList.add("active");
-    };
+    if (!buildingComplaintsList) return;
 
     if (bldComplaints.length === 0) {
-      buildingComplaintsList.innerHTML = `<div style="text-align: center; color: #10b981; padding: 20px; font-weight: 600;"><i class="ph-fill ph-check-circle" style="font-size: 1.6rem;"></i><br>All systems clear! No pending maintenance issues in ${bld.name}.</div>`;
+      buildingComplaintsList.innerHTML = `
+        <div style="text-align: center; color: #10b981; padding: 24px 16px; font-weight: 600; background: #ecfdf5; border-radius: var(--radius-md); border: 1px solid #a7f3d0;">
+          <i class="ph-fill ph-shield-check" style="font-size: 2rem; color: #059669; margin-bottom: 6px;"></i>
+          <div style="font-size: 0.95rem; color: #065f46;">All Systems Functional!</div>
+          <div style="font-size: 0.76rem; color: #047857; margin-top: 4px; font-weight: normal;">No pending or critical maintenance issues in ${escapeHtml(bld.name)}.</div>
+        </div>
+      `;
       return;
     }
 
@@ -515,14 +542,61 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="building-complaint-mini" onclick="window.FixItApp.openDetailsModal('${c.id}')">
         <div>
           <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">${escapeHtml(c.title)}</div>
-          <div style="font-size: 0.75rem; color: #64748b;"><i class="ph ph-map-pin"></i> ${escapeHtml(c.room)} • Assigned: ${escapeHtml(c.assignedTo || "Queue")}</div>
+          <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">
+            <i class="ph ph-map-pin"></i> ${escapeHtml(c.room)} • Assigned: <strong>${escapeHtml(c.assignedTo || "Queue")}</strong>
+          </div>
         </div>
-        <div class="d-flex gap-xs">
+        <div class="d-flex gap-xs align-center">
           ${renderBadge("priority", c.priority)}
           ${renderBadge("status", c.status)}
         </div>
       </div>
     `).join("");
+  }
+
+  // Map Filter Chips click handlers
+  if (mapFilterChips) {
+    mapFilterChips.addEventListener("click", (e) => {
+      const btn = e.target.closest(".map-chip-btn");
+      if (btn) {
+        mapFilterChips.querySelectorAll(".map-chip-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentMapFilter = btn.getAttribute("data-filter");
+        renderCampusMap();
+      }
+    });
+  }
+
+  // Map Search input handler
+  if (mapSearchInput) {
+    mapSearchInput.addEventListener("input", (e) => {
+      mapSearchQuery = e.target.value.trim().toLowerCase();
+      renderCampusMap();
+    });
+  }
+
+  // Map Zoom & Pan Controls
+  function applyMapZoom(delta) {
+    if (delta === 0) {
+      mapZoomLevel = 1;
+    } else {
+      mapZoomLevel = Math.max(1, Math.min(2.5, mapZoomLevel + delta));
+    }
+    if (mapPanLayer) {
+      mapPanLayer.style.transform = `scale(${mapZoomLevel})`;
+    }
+  }
+
+  if (mapZoomInBtn) mapZoomInBtn.addEventListener("click", () => applyMapZoom(0.25));
+  if (mapZoomOutBtn) mapZoomOutBtn.addEventListener("click", () => applyMapZoom(-0.25));
+  if (mapZoomResetBtn) mapZoomResetBtn.addEventListener("click", () => applyMapZoom(0));
+
+  if (mapFullscreenBtn && aerialMapViewport) {
+    mapFullscreenBtn.addEventListener("click", () => {
+      aerialMapViewport.classList.toggle("fullscreen-map");
+      const isFull = aerialMapViewport.classList.contains("fullscreen-map");
+      mapFullscreenBtn.innerHTML = isFull ? '<i class="ph ph-corners-in"></i>' : '<i class="ph ph-corners-out"></i>';
+    });
   }
 
   // ==========================================
@@ -1611,6 +1685,177 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/'/g, "&#039;");
   }
 
+  // ==========================================
+  // 16. Cloud Database Synchronization Engine
+  // ==========================================
+  const openCloudDbModalBtn = document.getElementById("openCloudDbModalBtn");
+  const closeCloudDbModalBtn = document.getElementById("closeCloudDbModalBtn");
+  const cloudDbModal = document.getElementById("cloudDbModal");
+  const cloudStatusDot = document.getElementById("cloudStatusDot");
+  const cloudStatusText = document.getElementById("cloudStatusText");
+  const cloudModalStatusBadge = document.getElementById("cloudModalStatusBadge");
+  const cloudSyncStatusDesc = document.getElementById("cloudSyncStatusDesc");
+  const cloudLastSyncTime = document.getElementById("cloudLastSyncTime");
+  const cloudEndpointInput = document.getElementById("cloudEndpointInput");
+  const cloudDbConfigForm = document.getElementById("cloudDbConfigForm");
+  const cloudForcePullBtn = document.getElementById("cloudForcePullBtn");
+  const cloudForcePushBtn = document.getElementById("cloudForcePushBtn");
+  const resetCloudDataBtn = document.getElementById("resetCloudDataBtn");
+
+  function initCloudSyncManager() {
+    const config = DataStore.getCloudConfig();
+    if (cloudEndpointInput) cloudEndpointInput.value = config.endpointUrl || "";
+
+    function updateCloudStatusUI(status, message, lastSync) {
+      if (cloudStatusText) {
+        if (status === "connected") {
+          cloudStatusText.textContent = "Cloud DB: Live Synced";
+          if (cloudStatusDot) {
+            cloudStatusDot.className = "pulse-dot";
+            cloudStatusDot.style.background = "#10b981";
+          }
+          if (openCloudDbModalBtn) openCloudDbModalBtn.className = "cloud-status-pill";
+        } else if (status === "syncing") {
+          cloudStatusText.textContent = "Syncing with Cloud...";
+          if (cloudStatusDot) {
+            cloudStatusDot.className = "pulse-dot pulse-blue";
+            cloudStatusDot.style.background = "#3b82f6";
+          }
+          if (openCloudDbModalBtn) openCloudDbModalBtn.className = "cloud-status-pill status-syncing";
+        } else {
+          cloudStatusText.textContent = "Cloud DB: Local Cache";
+          if (cloudStatusDot) {
+            cloudStatusDot.className = "pulse-dot";
+            cloudStatusDot.style.background = "#f59e0b";
+          }
+          if (openCloudDbModalBtn) openCloudDbModalBtn.className = "cloud-status-pill status-offline";
+        }
+      }
+
+      if (cloudModalStatusBadge) {
+        if (status === "connected") {
+          cloudModalStatusBadge.className = "badge badge-resolved";
+          cloudModalStatusBadge.innerHTML = '<i class="ph ph-check-circle"></i> Live Connected';
+        } else if (status === "syncing") {
+          cloudModalStatusBadge.className = "badge badge-progress";
+          cloudModalStatusBadge.innerHTML = '<i class="ph ph-arrows-clockwise"></i> Syncing...';
+        } else {
+          cloudModalStatusBadge.className = "badge badge-pending";
+          cloudModalStatusBadge.innerHTML = '<i class="ph ph-hard-drive"></i> Offline / Cache';
+        }
+      }
+
+      if (cloudSyncStatusDesc && message) cloudSyncStatusDesc.textContent = message;
+      if (cloudLastSyncTime) {
+        if (lastSync) {
+          const dt = new Date(lastSync);
+          cloudLastSyncTime.textContent = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        } else {
+          cloudLastSyncTime.textContent = "Just now";
+        }
+      }
+    }
+
+    // Subscribe to DataStore events
+    DataStore.subscribe((eventType, payload) => {
+      if (eventType === "complaints_updated") {
+        currentComplaints = payload || DataStore.getComplaints();
+        refreshAllViews();
+      } else if (eventType === "cloud_status_change") {
+        updateCloudStatusUI(payload.status, payload.message, payload.lastSync);
+      }
+    });
+
+    // Cloud Modal Handlers
+    if (openCloudDbModalBtn && cloudDbModal) {
+      openCloudDbModalBtn.addEventListener("click", () => {
+        const cfg = DataStore.getCloudConfig();
+        if (cloudEndpointInput) cloudEndpointInput.value = cfg.endpointUrl || "";
+        cloudDbModal.classList.add("active");
+      });
+    }
+
+    if (closeCloudDbModalBtn && cloudDbModal) {
+      closeCloudDbModalBtn.addEventListener("click", () => {
+        cloudDbModal.classList.remove("active");
+      });
+    }
+
+    if (cloudDbModal) {
+      cloudDbModal.addEventListener("click", (e) => {
+        if (e.target === cloudDbModal) cloudDbModal.classList.remove("active");
+      });
+    }
+
+    // Force Pull
+    if (cloudForcePullBtn) {
+      cloudForcePullBtn.addEventListener("click", async () => {
+        cloudForcePullBtn.disabled = true;
+        cloudForcePullBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Pulling...';
+        const data = await DataStore.pullFromCloud();
+        cloudForcePullBtn.disabled = false;
+        cloudForcePullBtn.innerHTML = '<i class="ph ph-arrow-down"></i> Force Pull Cloud Data';
+        if (data) {
+          currentComplaints = data;
+          refreshAllViews();
+          showToast("Cloud tickets successfully pulled and synchronized!", "success");
+        } else {
+          showToast("Could not pull from cloud. Using local cache.", "warning");
+        }
+      });
+    }
+
+    // Force Push
+    if (cloudForcePushBtn) {
+      cloudForcePushBtn.addEventListener("click", async () => {
+        cloudForcePushBtn.disabled = true;
+        cloudForcePushBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Pushing...';
+        const ok = await DataStore.pushToCloud(currentComplaints);
+        cloudForcePushBtn.disabled = false;
+        cloudForcePushBtn.innerHTML = '<i class="ph ph-cloud-arrow-up"></i> Force Push Local to Cloud';
+        if (ok) {
+          showToast("All local maintenance tickets pushed to Cloud Database!", "success");
+        } else {
+          showToast("Notice: Local tickets saved locally. Cloud will sync when online.", "info");
+        }
+      });
+    }
+
+    // Reset Data
+    if (resetCloudDataBtn) {
+      resetCloudDataBtn.addEventListener("click", async () => {
+        if (confirm("Reset cloud database and local storage to default Saveetha campus tickets?")) {
+          const sample = DataStore.resetToDefault();
+          currentComplaints = sample;
+          refreshAllViews();
+          showToast("Database reset to default Saveetha campus dataset!", "success");
+        }
+      });
+    }
+
+    // Save Config Form
+    if (cloudDbConfigForm) {
+      cloudDbConfigForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const currentCfg = DataStore.getCloudConfig();
+        const newUrl = cloudEndpointInput.value.trim();
+        if (newUrl) {
+          currentCfg.endpointUrl = newUrl;
+          DataStore.saveCloudConfig(currentCfg);
+          DataStore.pullFromCloud();
+          showToast("Cloud database configuration updated!", "success");
+          if (cloudDbModal) cloudDbModal.classList.remove("active");
+        }
+      });
+    }
+
+    // Initialize auto background sync
+    DataStore.initCloudSync(12000);
+  }
+
+  // ==========================================
+  // Global Exports & Boot
+  // ==========================================
   window.FixItApp = {
     openDetailsModal,
     quickUpdateStatus,
@@ -1620,5 +1865,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initial Load
+  initCloudSyncManager();
   refreshAllViews();
 });

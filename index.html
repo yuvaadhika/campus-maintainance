@@ -30,7 +30,10 @@
         <span class="eco-ticker"><i class="ph-fill ph-plant"></i> Eco-Saved Today: <strong id="topEcoWater">1,820 L</strong> Water • <strong id="topEcoPower">46 kWh</strong> Power</span>
       </div>
       <div class="announcement-right">
-        <button class="top-pill-btn" id="openSmsSimulatorBtn"><i class="ph ph-chat-circle-dots"></i> SMS / WhatsApp Alerts</button>
+        <button class="cloud-status-pill" id="openCloudDbModalBtn" title="Click to open Cloud Database & Realtime Sync Settings">
+          <span class="pulse-dot" id="cloudStatusDot"></span> <span id="cloudStatusText">Cloud DB: Live Synced</span>
+        </button>
+        <button class="top-pill-btn" id="openSmsSimulatorBtn"><i class="ph ph-chat-circle-dots"></i> SMS Alerts</button>
         <span class="announcement-contact"><i class="ph ph-phone"></i> Emergency: <strong>Ext. 1800-CAMPUS-FIX</strong></span>
       </div>
     </div>
@@ -389,17 +392,28 @@
 
           <!-- Location/Building Filter -->
           <div class="filter-group">
-            <label for="buildingFilter"><i class="ph ph-buildings"></i> Building</label>
+            <label for="buildingFilter"><i class="ph ph-buildings"></i> Building / Block</label>
             <select id="buildingFilter" class="filter-select">
               <option value="all">All Locations</option>
-              <option value="Main Academic Block">Main Academic Block</option>
-              <option value="Science & Lab Block">Science & Lab Block</option>
-              <option value="Central Library">Central Library</option>
-              <option value="Engineering Quad">Engineering Quad</option>
-              <option value="Hostel Block A">Hostel Block A</option>
-              <option value="Hostel Block B">Hostel Block B</option>
-              <option value="Auditorium & Sports Complex">Auditorium & Sports</option>
-              <option value="Cafeteria Building">Cafeteria Building</option>
+              <option value="Admin Block">Admin Block</option>
+              <option value="CSC Block (Computer Science)">CSC Block (Computer Science)</option>
+              <option value="ECE Block (Electronics & Comm)">ECE Block (Electronics & Comm)</option>
+              <option value="EEE Block (Electrical & Electronics)">EEE Block (Electrical & Electronics)</option>
+              <option value="SAIL Block (AI & Innovation Lab)">SAIL Block (AI & Innovation)</option>
+              <option value="Noyyal Hostel">Noyyal Hostel</option>
+              <option value="Kaveri Hostel">Kaveri Hostel</option>
+              <option value="Siruvani Hostel">Siruvani Hostel</option>
+              <option value="Palar Hostel">Palar Hostel</option>
+              <option value="SCON (Saveetha Nursing & Medical)">SCON Campus & Nursing</option>
+              <option value="RB (Ramanujan Block)">RB (Ramanujan Block)</option>
+              <option value="AHS Block (Allied Health Sciences)">AHS Block (Allied Health)</option>
+              <option value="Cricket & Track Grounds">Cricket & Track Grounds</option>
+              <option value="Campus Lake & Water Reservoir">Campus Lake</option>
+              <option value="Bus Parking & SCAD Hub">Bus Terminal & SCAD</option>
+              <option value="Line Canteen & Trends Food Court">Line Canteen & Food Courts</option>
+              <option value="Stadium & Utility Zone">Stadium & Utility Zone</option>
+              <option value="Guest House & Stone Bench Area">Guest House & Gardens</option>
+              <option value="Central Garden & Fountain Ring">Central Garden & Fountain</option>
             </select>
           </div>
 
@@ -474,12 +488,12 @@
     </section>
 
 
-    <!-- View 3: Interactive 2D Campus Map & Zone Heatmap -->
+    <!-- View 3: Interactive 2D Campus Map & Zone Heatmap (Saveetha Aerial Map) -->
     <section id="mapView" class="app-view">
       <div class="section-title-bar">
         <div>
-          <h1 class="page-heading"><i class="ph-fill ph-map-pin"></i> Interactive Campus Facility Map</h1>
-          <p class="page-subheading">Click any building or block to inspect active maintenance tickets, priority heatzones, and report issues directly.</p>
+          <h1 class="page-heading"><i class="ph-fill ph-map-pin"></i> Saveetha Engineering College – Interactive Campus Map</h1>
+          <p class="page-subheading">Live 2D Aerial Map with real-time maintenance heat indicators, interactive hotspot pins, and 1-click zone reporting.</p>
         </div>
         <div class="map-legend">
           <span class="legend-item"><span class="legend-dot red"></span> Critical Issues</span>
@@ -489,19 +503,59 @@
       </div>
 
       <div class="campus-map-wrapper">
-        <div class="map-buildings-grid" id="campusMapGrid">
-          <!-- Interactive Building Cards injected by JS -->
+        <!-- Interactive 2D Aerial Map Card -->
+        <div class="aerial-map-card">
+          <!-- Toolbar & Zone Filters -->
+          <div class="map-toolbar-strip">
+            <div class="map-filter-chips" id="mapFilterChips">
+              <button class="map-chip-btn active" data-filter="all"><i class="ph ph-squares-four"></i> All Zones</button>
+              <button class="map-chip-btn" data-filter="Academic & Admin"><i class="ph ph-bank"></i> Academic & Admin</button>
+              <button class="map-chip-btn" data-filter="Hostels"><i class="ph ph-bed"></i> Hostels</button>
+              <button class="map-chip-btn" data-filter="Sports & Grounds"><i class="ph ph-trophy"></i> Sports & Grounds</button>
+              <button class="map-chip-btn" data-filter="Amenities & Campus"><i class="ph ph-fork-knife"></i> Amenities</button>
+            </div>
+            <div class="map-search-box">
+              <i class="ph ph-magnifying-glass"></i>
+              <input type="text" id="mapSearchInput" placeholder="Locate block or hostel...">
+            </div>
+          </div>
+
+          <!-- Aerial Viewport with Saveetha Photo & Hotspots -->
+          <div class="aerial-map-viewport" id="aerialMapViewport">
+            <div class="map-image-pan-layer" id="mapPanLayer">
+              <img src="assets/saveetha_campus_map.jpg" alt="Saveetha Engineering College Aerial Campus Map" class="saveetha-campus-photo" id="saveethaMapImg">
+              <!-- Dynamic Hotspot Pins Injected by JS -->
+              <div id="mapHotspotsContainer"></div>
+            </div>
+
+            <!-- Floating Controls (Zoom / Reset / Fullscreen) -->
+            <div class="map-floating-controls">
+              <button class="map-control-btn" id="mapZoomInBtn" title="Zoom In"><i class="ph ph-plus"></i></button>
+              <button class="map-control-btn" id="mapZoomOutBtn" title="Zoom Out"><i class="ph ph-minus"></i></button>
+              <button class="map-control-btn" id="mapZoomResetBtn" title="Reset View"><i class="ph ph-arrows-out-line-horizontal"></i></button>
+              <button class="map-control-btn" id="mapFullscreenBtn" title="Toggle Fullscreen"><i class="ph ph-corners-out"></i></button>
+            </div>
+          </div>
+          
+          <div class="d-flex justify-between align-center" style="font-size: 0.76rem; color: var(--text-muted); padding: 0 4px;">
+            <span><i class="ph ph-hand-pointing"></i> Click any pin on the map to inspect open tickets and report issues directly</span>
+            <span><i class="ph ph-buildings"></i> 19 Monitored Campus Zones</span>
+          </div>
         </div>
 
+        <!-- Selected Building Details & Issues Panel -->
         <div class="map-selected-building-panel" id="mapSelectedBuildingPanel">
           <div class="panel-header">
             <div>
-              <span class="building-badge-pill" id="selectedBuildingBadge">Building Selected</span>
+              <div class="d-flex align-center gap-xs">
+                <span class="building-badge-pill" id="selectedBuildingBadge">Building Selected</span>
+                <span class="building-zone-type" id="selectedBuildingZone">Central Zone</span>
+              </div>
               <h3 class="panel-title mt-xs" id="selectedBuildingTitle">Select a building on the map</h3>
-              <p class="panel-subtitle" id="selectedBuildingSubtitle">Click any zone above to view localized complaints</p>
+              <p class="panel-subtitle" id="selectedBuildingSubtitle">Click any zone or pin on the aerial map to view localized complaints</p>
             </div>
             <button class="btn btn-primary btn-sm" id="mapReportHereBtn" style="display: none;">
-              <i class="ph ph-plus"></i> Report Issue Here
+              <i class="ph-bold ph-plus"></i> Report Issue Here
             </button>
           </div>
           <div class="building-complaints-list" id="buildingComplaintsList">
@@ -628,17 +682,17 @@
             </div>
             <p class="scanner-hint">Simulate scanning a classroom or laboratory QR sticker:</p>
             <div class="quick-qr-presets">
-              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Science & Lab Block" data-floor="1st Floor" data-room="Chemistry Lab 3 (Room 104)">
-                🧪 Scan Chemistry Lab 3
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="CSC Block (Computer Science)" data-floor="1st Floor" data-room="Data Analytics Lab (Room 104)">
+                💻 Scan CSC Block Lab
               </button>
-              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Engineering Quad" data-floor="2nd Floor" data-room="Embedded Systems Lab (Room 210)">
-                ⚡ Scan Embedded Lab 210
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="ECE Block (Electronics & Comm)" data-floor="2nd Floor" data-room="Embedded Systems Lab (Room 210)">
+                ⚡ Scan ECE Lab 210
               </button>
-              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Main Academic Block" data-floor="3rd Floor" data-room="Lecture Hall 302">
-                🏛️ Scan Lecture Hall 302
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="SAIL Block (AI & Innovation Lab)" data-floor="4th Floor" data-room="Innovation Arena Lab 401">
+                🤖 Scan SAIL Innovation Hub
               </button>
-              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Central Library" data-floor="2nd Floor" data-room="Digital Periodicals Section">
-                📚 Scan Digital Library
+              <button class="btn btn-secondary btn-sm qr-scan-preset" data-building="Noyyal Hostel" data-floor="1st Floor" data-room="Common Washroom (Room 108)">
+                🏠 Scan Noyyal Hostel
               </button>
             </div>
           </div>
@@ -649,19 +703,25 @@
           <div class="panel-header">
             <div>
               <h3 class="panel-title"><i class="ph ph-printer"></i> Printable Room QR Code Generator</h3>
-              <p class="panel-subtitle">Facility Admin tool to generate stickers for every door</p>
+              <p class="panel-subtitle">Facility Admin tool to generate stickers for Saveetha campus doors</p>
             </div>
           </div>
           <div class="qr-generator-form">
             <div class="form-group">
               <label for="qrGenBuilding" class="form-label">Select Building</label>
               <select id="qrGenBuilding" class="form-select">
-                <option value="Main Academic Block">Main Academic Block</option>
-                <option value="Science & Lab Block">Science & Lab Block</option>
-                <option value="Central Library">Central Library</option>
-                <option value="Engineering Quad">Engineering Quad</option>
-                <option value="Hostel Block A">Hostel Block A</option>
-                <option value="Auditorium & Sports Complex">Auditorium & Sports Complex</option>
+                <option value="Admin Block">Admin Block</option>
+                <option value="CSC Block (Computer Science)">CSC Block (Computer Science)</option>
+                <option value="ECE Block (Electronics & Comm)">ECE Block (Electronics & Comm)</option>
+                <option value="EEE Block (Electrical & Electronics)">EEE Block (Electrical & Electronics)</option>
+                <option value="SAIL Block (AI & Innovation Lab)">SAIL Block (AI & Innovation)</option>
+                <option value="Noyyal Hostel">Noyyal Hostel</option>
+                <option value="Kaveri Hostel">Kaveri Hostel</option>
+                <option value="Siruvani Hostel">Siruvani Hostel</option>
+                <option value="Palar Hostel">Palar Hostel</option>
+                <option value="SCON (Saveetha Nursing & Medical)">SCON Campus & Nursing</option>
+                <option value="RB (Ramanujan Block)">RB (Ramanujan Block)</option>
+                <option value="Line Canteen & Trends Food Court">Line Canteen & Food Courts</option>
               </select>
             </div>
             <div class="form-group mt-sm">
@@ -965,14 +1025,25 @@
             <label for="issueBuilding" class="form-label required">Campus Building / Block</label>
             <select id="issueBuilding" class="form-select" required>
               <option value="" disabled selected>Select Building...</option>
-              <option value="Main Academic Block">Main Academic Block</option>
-              <option value="Science & Lab Block">Science & Lab Block</option>
-              <option value="Central Library">Central Library</option>
-              <option value="Engineering Quad">Engineering Quad</option>
-              <option value="Hostel Block A">Hostel Block A (Boys)</option>
-              <option value="Hostel Block B">Hostel Block B (Girls)</option>
-              <option value="Auditorium & Sports Complex">Auditorium & Sports Complex</option>
-              <option value="Cafeteria Building">Cafeteria Building</option>
+              <option value="Admin Block">Admin Block</option>
+              <option value="CSC Block (Computer Science)">CSC Block (Computer Science)</option>
+              <option value="ECE Block (Electronics & Comm)">ECE Block (Electronics & Comm)</option>
+              <option value="EEE Block (Electrical & Electronics)">EEE Block (Electrical & Electronics)</option>
+              <option value="SAIL Block (AI & Innovation Lab)">SAIL Block (AI & Innovation Lab)</option>
+              <option value="Noyyal Hostel">Noyyal Hostel</option>
+              <option value="Kaveri Hostel">Kaveri Hostel</option>
+              <option value="Siruvani Hostel">Siruvani Hostel</option>
+              <option value="Palar Hostel">Palar Hostel</option>
+              <option value="SCON (Saveetha Nursing & Medical)">SCON Campus & Nursing</option>
+              <option value="RB (Ramanujan Block)">RB (Ramanujan Block)</option>
+              <option value="AHS Block (Allied Health Sciences)">AHS Block (Allied Health)</option>
+              <option value="Cricket & Track Grounds">Cricket & Track Grounds</option>
+              <option value="Campus Lake & Water Reservoir">Campus Lake</option>
+              <option value="Bus Parking & SCAD Hub">Bus Terminal & SCAD</option>
+              <option value="Line Canteen & Trends Food Court">Line Canteen & Food Courts</option>
+              <option value="Stadium & Utility Zone">Stadium & Utility Zone</option>
+              <option value="Guest House & Stone Bench Area">Guest House & Gardens</option>
+              <option value="Central Garden & Fountain Ring">Central Garden & Fountain</option>
             </select>
           </div>
 
@@ -1224,6 +1295,68 @@
     </div>
   </div>
 
+
+  <!-- MODAL 4: Cloud Database Synchronization & Realtime Backend Config Modal -->
+  <div class="modal-overlay" id="cloudDbModal" role="dialog" aria-modal="true">
+    <div class="modal-container modal-md">
+      <div class="modal-header">
+        <div class="d-flex align-center gap-sm">
+          <div class="modal-header-icon" style="background: #eff6ff; color: #2563eb;">
+            <i class="ph-fill ph-cloud-check"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="font-size: 1.15rem;">Live Cloud Database & Realtime Sync</h3>
+            <p class="modal-subtitle">Real-time persistence across all devices & users</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeCloudDbModalBtn">&times;</button>
+      </div>
+      <div class="modal-body-scroll">
+        <div class="p-md" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); margin-bottom: 16px;">
+          <div class="d-flex justify-between align-center">
+            <div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.9rem;">Cloud Sync Status</div>
+              <div style="font-size: 0.78rem; color: #64748b;" id="cloudSyncStatusDesc">Connected to Firebase Realtime Database Engine</div>
+            </div>
+            <span class="badge badge-resolved" id="cloudModalStatusBadge"><i class="ph ph-check-circle"></i> Live Connected</span>
+          </div>
+          <div class="mt-sm" style="font-size: 0.75rem; color: var(--text-muted);">
+            Last Synced: <strong id="cloudLastSyncTime">Just now</strong>
+          </div>
+        </div>
+
+        <form id="cloudDbConfigForm">
+          <div class="form-group">
+            <label class="form-label">Database Provider</label>
+            <input type="text" class="form-input" value="Firebase Realtime Database (Auto-Synced)" readonly style="background: #f1f5f9; cursor: not-allowed;">
+          </div>
+          <div class="form-group mt-sm">
+            <label for="cloudEndpointInput" class="form-label">Cloud Database REST Endpoint</label>
+            <input type="url" id="cloudEndpointInput" class="form-input" placeholder="https://your-project.firebaseio.com/complaints.json">
+            <span style="font-size: 0.72rem; color: #64748b; margin-top: 4px; display: block;">Connected by default to Saveetha Campus Realtime DB. You can also paste your own Firebase or Supabase REST endpoint.</span>
+          </div>
+
+          <div class="d-flex gap-sm mt-lg">
+            <button type="button" class="btn btn-secondary btn-sm flex-1" id="cloudForcePullBtn">
+              <i class="ph ph-arrow-down"></i> Force Pull Cloud Data
+            </button>
+            <button type="button" class="btn btn-primary btn-sm flex-1" id="cloudForcePushBtn">
+              <i class="ph ph-cloud-arrow-up"></i> Force Push Local to Cloud
+            </button>
+          </div>
+          
+          <div class="mt-md pt-sm" style="border-top: 1px dashed var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+            <button type="button" class="btn btn-danger-outline btn-sm" id="resetCloudDataBtn">
+              <i class="ph ph-arrow-counter-clockwise"></i> Reset to Default Sample Tickets
+            </button>
+            <button type="submit" class="btn btn-secondary btn-sm">
+              <i class="ph ph-floppy-disk"></i> Save Config
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>

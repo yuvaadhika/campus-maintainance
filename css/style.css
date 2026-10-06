@@ -1493,7 +1493,7 @@ a {
   color: var(--text-muted);
 }
 
-/* --- 15. Interactive 2D Campus Map --- */
+/* --- 15. Interactive 2D Campus Map (Saveetha Aerial Map Engine) --- */
 .map-legend {
   display: flex;
   align-items: center;
@@ -1521,88 +1521,279 @@ a {
 
 .campus-map-wrapper {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 22px;
   align-items: start;
 }
 
-.map-buildings-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.campus-building-tile {
+/* Aerial Map Viewport & Canvas */
+.aerial-map-card {
   background: var(--bg-surface);
-  border: 2px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 18px;
-  cursor: pointer;
-  transition: var(--transition-normal);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   gap: 14px;
-  position: relative;
 }
 
-.campus-building-tile:hover {
-  border-color: #3b82f6;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.campus-building-tile.active-selected {
-  border-color: #2563eb;
-  background: #f8fafc;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-.campus-building-tile.heat-critical {
-  border-color: #fecdd3;
-  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
-}
-
-.tile-top {
+.map-toolbar-strip {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.building-icon-wrap {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
+.map-filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.map-chip-btn {
+  background: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.map-chip-btn:hover, .map-chip-btn.active {
   background: #eff6ff;
-  color: #2563eb;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.map-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.map-search-box input {
+  padding: 6px 12px 6px 30px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-subtle);
+  outline: none;
+  width: 170px;
+}
+
+.map-search-box i {
+  position: absolute;
+  left: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.aerial-map-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 10 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+  background: #0f172a;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+  user-select: none;
+}
+
+.aerial-map-viewport.fullscreen-map {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+  aspect-ratio: auto;
+}
+
+.map-image-pan-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.25s ease-out;
+  transform-origin: center center;
+}
+
+.saveetha-campus-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* Map Interactive Hotspot Pins */
+.map-hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.map-hotspot:hover {
+  transform: translate(-50%, -50%) scale(1.18);
+  z-index: 30;
+}
+
+.map-hotspot.active-pin {
+  transform: translate(-50%, -50%) scale(1.25);
+  z-index: 40;
+}
+
+.hotspot-pin-inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-}
-
-.building-name {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  border: 2px solid #3b82f6;
+  color: #1e3a8a;
   font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.25;
 }
 
-.building-stats-strip {
+.map-hotspot.heat-critical .hotspot-pin-inner {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.map-hotspot.heat-progress .hotspot-pin-inner {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.map-hotspot.heat-clean .hotspot-pin-inner {
+  border-color: #10b981;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.hotspot-radar-pulse {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  pointer-events: none;
+  animation: radarPulse 2s infinite cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.map-hotspot.heat-critical .hotspot-radar-pulse {
+  border-color: #ef4444;
+}
+
+.map-hotspot.heat-progress .hotspot-radar-pulse {
+  border-color: #f59e0b;
+}
+
+@keyframes radarPulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.hotspot-badge-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
   display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  border-top: 1px dashed var(--border-subtle);
-  padding-top: 10px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+.hotspot-badge-count.badge-green {
+  background: #10b981;
+}
+
+.hotspot-label-pill {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Floating Zoom & Controls Overlay */
+.map-floating-controls {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+}
+
+.map-control-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #1e293b;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(6px);
+  transition: var(--transition-fast);
+}
+
+.map-control-btn:hover {
+  background: #ffffff;
+  color: #2563eb;
+  transform: scale(1.06);
+}
+
+/* Building Details Panel */
 .map-selected-building-panel {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 22px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
 }
@@ -1614,6 +1805,15 @@ a {
   background: #eff6ff;
   padding: 3px 10px;
   border-radius: var(--radius-full);
+}
+
+.building-zone-type {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .building-complaints-list {
@@ -1639,7 +1839,54 @@ a {
 
 .building-complaint-mini:hover {
   background: #ffffff;
-  border-color: #cbd5e1;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+/* Cloud DB Status Pill */
+.cloud-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.cloud-status-pill:hover {
+  background: #d1fae5;
+}
+
+.cloud-status-pill.status-syncing {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.cloud-status-pill.status-offline {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.pulse-blue {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: pulseBlue 1.5s infinite;
+}
+
+@keyframes pulseBlue {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  50% { transform: scale(1.2); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.9; }
 }
 
 /* --- 16. Kanban Workflow View --- */
